@@ -1,2 +1,3 @@
-# sender_prestashop
-Sender.net integration with Prestashop
+# Sender.net Prestashop Module
+
+WIP
