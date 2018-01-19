@@ -4,7 +4,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once 'lib/Sender/ApiClient.php';
+require_once dirname(__FILE__) . 'lib/Sender/ApiClient.php';
  
 class SenderPrestashop extends Module
 {
@@ -15,7 +15,7 @@ class SenderPrestashop extends Module
     public function __construct()
     {
         $this->name = 'senderprestashop';
-        $this->tab = 'Sender.net settings';
+        $this->tab = 'emailing';
         $this->version = '1.0.0';
         $this->author = 'Sender.net';
         $this->need_instance = 0;
@@ -45,6 +45,8 @@ class SenderPrestashop extends Module
             Shop::setContext(Shop::CONTEXT_ALL);
         }
 
+        $this->addTabs();
+
         if (parent::install()) {
             foreach ($this->defaultSettings as $defaultSettingKey => $defaultSettingValue) {
                 if (!Configuration::updateValue($defaultSettingKey, $defaultSettingValue)) {
@@ -66,6 +68,25 @@ class SenderPrestashop extends Module
             }
         }
 
+        return true;
+    }
+
+    private function addTabs()
+    {
+
+        $langs = Language::getLanguages();
+        $id_lang = (int) Configuration::get('PS_LANG_DEFAULT');
+
+        $new_tab = new Tab();
+        $new_tab->class_name = "SenderPrestashop";
+        $new_tab->module = "senderprestashop";
+        $new_tab->id_parent = 0;
+        foreach ($langs as $l) {
+            $new_tab->name[$l['id_lang']] = $this->l('Sender.net Settings');
+        }
+        $new_tab->save();
+        $tab_id = $new_tab->id;
+      
         return true;
     }
 
