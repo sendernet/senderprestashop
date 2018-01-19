@@ -8,13 +8,13 @@ require_once 'lib/Sender/ApiClient.php';
  
 class SenderPrestashop extends Module
 {
-    public $_optionPrefix = 'sender_prestashop_';
+    public $_optionPrefix = 'senderprestashop_';
     private $defaultSettings = array();
 
 
     public function __construct()
     {
-        $this->name = 'sender_prestashop';
+        $this->name = 'senderprestashop';
         $this->tab = 'Sender.net settings';
         $this->version = '1.0.0';
         $this->author = 'Sender.net';
@@ -46,8 +46,8 @@ class SenderPrestashop extends Module
         }
 
         if (parent::install()) {
-            foreach ($this->defaultSettings as $defaultSettingKey => $defaultSettingKey) {
-                if (!Configuration::updateValue($defaultSettingKey, $defaultSettingKey)) {
+            foreach ($this->defaultSettings as $defaultSettingKey => $defaultSettingValue) {
+                if (!Configuration::updateValue($defaultSettingKey, $defaultSettingValue)) {
                     return false;
                 }
             }
@@ -59,7 +59,7 @@ class SenderPrestashop extends Module
     public function uninstall()
     {
         if (parent::uninstall()) {
-            foreach ($this->defaultSettings as $defaultSettingKey => $defaultSettingKey) {
+            foreach ($this->defaultSettings as $defaultSettingKey => $defaultSettingValue) {
                 if (!Configuration::deleteByName($defaultSettingKey)) {
                     return false;
                 }
