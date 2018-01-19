@@ -4,7 +4,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once 'lib/Sender/ApiClient.php';
+require_once 'lib/Sender/SenderApiClient.php';
  
 class SenderPrestashop extends Module
 {
@@ -73,7 +73,6 @@ class SenderPrestashop extends Module
 
     private function addTabs()
     {
-
         $langs = Language::getLanguages();
         $id_lang = (int) Configuration::get('PS_LANG_DEFAULT');
 
