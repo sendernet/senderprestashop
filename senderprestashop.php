@@ -97,16 +97,27 @@ class SenderPrestashop extends Module
      */
     public function getAuthUrl()
     {
+        $apiClient = new SenderApiClient();
+
         // TODO: fix this to be compatable with presta OR
         //       move it main module Class
+        
+        $returnUrl = (Configuration::get('PS_SSL_ENABLED') ? 'https://' : 'http://')
+            .$this->context->shop->domain
+            . _MODULE_DIR_
+            . 'senderprestashop/auth.php?token='
+            . Tools::encrypt(Configuration::get('PS_SHOP_NAME'))
+            . '&response_key=API_KEY';
+
         $query = http_build_query(array(
-            'return'        => get_site_url() . '/wp-admin/options-general.php?page=sender-woocommerce&action=authenticate&response_key=API_KEY',
-            'return_cancel' => $this->getBaseUrl(),
-            'store_baseurl' => get_site_url(),
-            'store_currency' => get_option('woocommerce_currency')
+            'return'        => $returnUrl,
+            'return_cancel' => $apiClient->getBaseUrl(),
+            'store_baseurl' => (Configuration::get('PS_SSL_ENABLED') ? 'https://' : 'http://')
+                                .$this->context->shop->domain,
+            'store_currency' => 'EUR'
         ));
     
-        $url = $this->getBaseUrl() . '/commerce/auth/?' . $query;
+        $url = $apiClient->getBaseUrl() . '/commerce/auth/?' . $query;
         return $url;
     }
 

@@ -13,6 +13,7 @@ if (!defined('_PS_VERSION_')) {
  *     Now you must explicitly call setApiKey method
  *     on new ApiClient object to set which key to use
  *
+ *     - Implement NULL api key check
  *
  *
  */
@@ -59,7 +60,7 @@ class SenderApiClient
      */
     public function setApiKey($key = null)
     {
-        if (!$key) {
+        if (!$key) { // || strlen($key) < 32 #add later when not in development
             return false;
         }
         
