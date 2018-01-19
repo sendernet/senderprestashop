@@ -4,7 +4,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 
-require_once dirname(__FILE__) . 'lib/Sender/ApiClient.php';
+require_once 'lib/Sender/ApiClient.php';
  
 class SenderPrestashop extends Module
 {
