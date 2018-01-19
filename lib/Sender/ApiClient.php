@@ -2,7 +2,7 @@
 
 // Not sure if needed?
 if (!defined('_PS_VERSION_')) {
-  exit;
+    exit;
 }
 
 /**
@@ -14,7 +14,6 @@ if (!defined('_PS_VERSION_')) {
  */
 class SenderApiClient
 {
-    
     private $apiKey;
     private $apiEndpoint;
     private $commerceEndpoint;
@@ -22,43 +21,43 @@ class SenderApiClient
     // Debug
     // private $baseUrl = 'http://sinergijait.lt/Vytautas/wipsistema';
 
-    public function __construct() 
+    public function __construct()
     {
         // TODO: get from Presta Options or move out from ApiClient
         //       and pass it as a parameter to a constructor
         $this->apiKey = get_option('sender_woocommerce_api_key');
         $this->apiEndpoint = $this->baseUrl . '/api';
         $this->commerceEndpoint = $this->baseUrl . '/commerce/v1';
-        
     }
     
     /**
-     * Returns current Api key 
+     * Returns current Api key
      *
      * @return type
      */
-    public function getApiKey() 
+    public function getApiKey()
     {
         return $this->apiKey;
     }
 
     /**
      * Return base URL
-     * 
+     *
      * @return type
      */
-    public function getBaseUrl() {
+    public function getBaseUrl()
+    {
         return $this->baseUrl;
     }
 
     /**
      * Generate authentication URL
-     * 
+     *
      * @return string
      */
     public function getAuthUrl()
     {
-        // TODO: fix this to be compatable with presta OR 
+        // TODO: fix this to be compatable with presta OR
         //       move it main module Class
         $query = http_build_query(array(
             'return'        => get_site_url() . '/wp-admin/options-general.php?page=sender-woocommerce&action=authenticate&response_key=API_KEY',
@@ -75,13 +74,14 @@ class SenderApiClient
      * TODO: Maybe move this out to main module Class
      *       make it work for Presta settings
      * Save api key to database
-     * 
+     *
      * @param type $apiKey
      * @return boolean
      */
-    public function authenticate($apiKey) {
+    public function authenticate($apiKey)
+    {
         // Implement api key check!
-        if(strlen($apiKey) < 30) {
+        if (strlen($apiKey) < 30) {
             // Implement error handler class
             echo $this->makeNotice('Could not authenticate!');
             return true;
@@ -94,34 +94,32 @@ class SenderApiClient
             
             $forms = $api->getAllForms();
             
-            if(isset($lists[0]->id) ) {
+            if (isset($lists[0]->id)) {
                 update_option('sender_woocommerce_customers_list', array('id' => $lists[0]->id, 'title' => $lists[0]->title));
             } else {
                 update_option('sender_woocommerce_allow_guest_track', 0);
             }
             
-            if(isset($lists[0]->id)) {
+            if (isset($lists[0]->id)) {
                 update_option('sender_woocommerce_registration_list', array('id' => $lists[0]->id, 'title' => $lists[0]->title));
             } else {
                 update_option('sender_woocommerce_registration_track', 0);
             }
             
-            if(isset($forms->error) && get_option('sender_woocommerce_allow_forms')) {
-                update_option( 'sender_woocommerce_allow_forms', 0 );
+            if (isset($forms->error) && get_option('sender_woocommerce_allow_forms')) {
+                update_option('sender_woocommerce_allow_forms', 0);
             }
-            
         }
-        
     }
     
     /**
-     * 
+     *
      * @param type $key
      * @return boolean
      */
-    public function setApiKey($key = null) 
+    public function setApiKey($key = null)
     {
-        if(!$key) {
+        if (!$key) {
             return false;
         }
         
@@ -132,26 +130,25 @@ class SenderApiClient
     
     /**
      * Try to make api call to check whether
-     * the api key is valid 
+     * the api key is valid
      *
      * @return boolean
      */
-    public function checkApiKey() 
+    public function checkApiKey()
     {
-        
-        if(!$this->getApiKey()) { // No api key
+        if (!$this->getApiKey()) { // No api key
             return false;
         }
         
         // Try
         $response = $this->addToList('', '');
         
-        if(isset($response->error->code)) { // Wrong api key
-            if($response->error->code == 007) {
+        if (isset($response->error->code)) { // Wrong api key
+            if ($response->error->code == 007) {
                 return false;
 
                 // TODO: remove old key or move this out of ApiClient
-                delete_option('sender_woocommerce_api_key'); 
+                delete_option('sender_woocommerce_api_key');
                 // TODO: disable module or move this out of ApiClient
                 update_option('sender_woocommerce_plugin_active', false);
             }
@@ -163,13 +160,13 @@ class SenderApiClient
 
     /**
      * Retrieve all mailinglists
-     * 
+     *
      * @return type
      */
-    public function getAllLists() 
+    public function getAllLists()
     {
         $data = array(
-            "method" => "listGetAllLists", 
+            "method" => "listGetAllLists",
             "params" => array(
                 "api_key" => $this->apiKey,
  
@@ -181,13 +178,13 @@ class SenderApiClient
     
     /**
      * Retrieve all forms
-     * 
+     *
      * @return type
      */
-    public function getAllForms() 
+    public function getAllForms()
     {
         $data = array(
-            "method" => "formGetAll", 
+            "method" => "formGetAll",
             "params" => array(
                 "api_key" => $this->apiKey,
             )
@@ -198,13 +195,13 @@ class SenderApiClient
     
     /**
      * Retrieve push project script url
-     * 
+     *
      * @return type
      */
-    public function getPushProject() 
+    public function getPushProject()
     {
         $data = array(
-            "method" => "pushGetProject", 
+            "method" => "pushGetProject",
             "params" => array(
                 "api_key" => $this->apiKey,
             )
@@ -215,14 +212,14 @@ class SenderApiClient
     
     /**
      * Retrieve specific form via ID
-     * 
+     *
      * @param type $id
      * @return type
      */
     public function getFormById($id)
     {
         $data = array(
-            "method" => "formGetById", 
+            "method" => "formGetById",
             "params" => array(
                 "form_id" => $id,
                 "api_key" => $this->apiKey,
@@ -234,7 +231,7 @@ class SenderApiClient
     
     /**
      * Add user or info to mailinglist
-     * 
+     *
      * @param type $email
      * @param type $listId
      * @param type $fname
@@ -243,9 +240,8 @@ class SenderApiClient
      */
     public function addToList($email, $listId, $fname = '', $lname = '')
     {
-        
         $data = array(
-            "method" => "listSubscribe", 
+            "method" => "listSubscribe",
             "params" => array(
                 "api_key" => $this->apiKey,
                 "list_id" => $listId,
@@ -261,67 +257,60 @@ class SenderApiClient
     
     /**
      * Sends cart data to Sender
-     * 
+     *
      * @param type $params
      * @return type
      */
     public function cartTrack($params)
     {
-        
         $params['api_key'] = $this->apiKey;
         // TODO: Make compatible with Presta OR better make presta
         //       to use same mechanism for retrieving carts
         $params['url'] = get_site_url() . '/?hash={$cart_hash}';
         
         return $this->makeCommerceRequest($params, 'cart_track');
-
     }
 
     /**
      * Get cart from sender
-     * 
+     *
      * @param type $cartHash
      * @return type
      */
-    public function cartGet($cartHash) 
+    public function cartGet($cartHash)
     {
-        
         $params = array(
                       "api_key" => $this->apiKey,
                       "cart_hash" => $cartHash,
                   );
         
         return $this->makeCommerceRequest($params, 'cart_get');
-
     }
     
     /**
      * Convert cart
-     * 
+     *
      * @param type $cartId
      * @return type
      */
     public function cartConvert($cartId)
     {
-        
         $params = array(
                       "api_key" => $this->apiKey,
                       "external_id" => $cartId,
                   );
         
         return $this->makeCommerceRequest($params, 'cart_convert');
-        
     }
     
     /**
-     * Delete cart 
+     * Delete cart
      *
      * @param type $cartId
      * @return type
      */
     public function cartDelete($cartId)
     {
-        
         $params = array(
                       "api_key" => $this->apiKey,
                       "external_id" => $cartId,
@@ -331,7 +320,7 @@ class SenderApiClient
     }
 
     /**
-     * Handle requests to commerce endpoint 
+     * Handle requests to commerce endpoint
      *
      * @param type $params
      * @param type $method
@@ -354,7 +343,7 @@ class SenderApiClient
 
     /**
      * Handle requests to API endpoint
-     * 
+     *
      * @param type $params
      * @return type
      */
@@ -372,6 +361,5 @@ class SenderApiClient
         $result = file_get_contents($this->apiEndpoint, false, $context);
         $response = json_decode($result);
         return $response;
-        
     }
 }

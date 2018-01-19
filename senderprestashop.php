@@ -1,7 +1,7 @@
 <?php
 
 if (!defined('_PS_VERSION_')) {
-  exit;
+    exit;
 }
  
 class SenderPrestashop extends Module
@@ -10,7 +10,8 @@ class SenderPrestashop extends Module
     private $defaultSettings = array();
 
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->name = 'senderprestashop';
         $this->tab = 'Sender.net settings';
         $this->version = '1.0.0';
@@ -36,22 +37,18 @@ class SenderPrestashop extends Module
         );
     }
     
-    public function install() {
+    public function install()
+    {
         if (Shop::isFeatureActive()) {
             Shop::setContext(Shop::CONTEXT_ALL);
         }
 
-        if (parent::install())
-        {
-            
-            foreach($this->defaultSettings as $defaultSettingKey => $defaultSettingKey)
-            {
-                if(!Configuration::updateValue($defaultSettingKey, $defaultSettingKey))
-                {
+        if (parent::install()) {
+            foreach ($this->defaultSettings as $defaultSettingKey => $defaultSettingKey) {
+                if (!Configuration::updateValue($defaultSettingKey, $defaultSettingKey)) {
                     return false;
                 }
             }
-            
         }
         
         return true;
@@ -59,20 +56,14 @@ class SenderPrestashop extends Module
     
     public function uninstall()
     {
-        if (parent::uninstall())
-        {
-            
-            foreach($this->defaultSettings as $defaultSettingKey => $defaultSettingKey)
-            {
-                if(!Configuration::deleteByName($defaultSettingKey))
-                {
+        if (parent::uninstall()) {
+            foreach ($this->defaultSettings as $defaultSettingKey => $defaultSettingKey) {
+                if (!Configuration::deleteByName($defaultSettingKey)) {
                     return false;
                 }
             }
-            
         }
 
         return true;
     }
-
 }
