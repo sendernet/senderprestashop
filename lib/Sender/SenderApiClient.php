@@ -94,6 +94,25 @@ class SenderApiClient
         return true;
     }
 
+    /**
+     * Generate authentication URL
+     *
+     * @param string $baseUrl [website base url]
+     * @param string $returnUrl [url to return with api key attached]
+     */
+    public function generateAuthUrl($baseUrl, $returnUrl)
+    {
+
+        $query = http_build_query(array(
+            'return'        => $returnUrl . '&response_key=API_KEY',
+            'return_cancel' => $this->getBaseUrl(),
+            'store_baseurl' => $baseUrl,
+            'store_currency' => 'EUR'
+        ));
+    
+        return $this->getBaseUrl() . '/commerce/auth/?' . $query;
+    }
+
 
     /**
      * Retrieve all mailinglists

@@ -71,13 +71,29 @@ class SenderPrestashop extends Module
         return true;
     }
 
+    /**
+     *
+     *
+     * Redirects administrator to module configuration page.
+     * @todo  make conditional link if not authenticated
+     */
+    public function getContent()
+    {
+        Tools::redirectAdmin($this->context->link->getAdminLink('AdminSenderPrestashopAuth'));
+    }
+
+    /**
+     *
+     *
+     * @todo make conditional link if not authenticated
+     */
     private function addTabs()
     {
         $langs = Language::getLanguages();
         $id_lang = (int) Configuration::get('PS_LANG_DEFAULT');
 
         $new_tab = new Tab();
-        $new_tab->class_name = "SenderPrestashop";
+        $new_tab->class_name = "AdminSenderPrestashopAuth";
         $new_tab->module = "senderprestashop";
         $new_tab->id_parent = 0;
         foreach ($langs as $l) {
@@ -87,79 +103,5 @@ class SenderPrestashop extends Module
         $tab_id = $new_tab->id;
       
         return true;
-    }
-
-    /**
-     * TODO
-     * Generate authentication URL
-     *
-     * @return string
-     */
-    public function getAuthUrl()
-    {
-        $apiClient = new SenderApiClient();
-
-        // TODO: fix this to be compatable with presta OR
-        //       move it main module Class
-        
-        $returnUrl = (Configuration::get('PS_SSL_ENABLED') ? 'https://' : 'http://')
-            .$this->context->shop->domain
-            . _MODULE_DIR_
-            . 'senderprestashop/auth.php?token='
-            . Tools::encrypt(Configuration::get('PS_SHOP_NAME'))
-            . '&response_key=API_KEY';
-
-        $query = http_build_query(array(
-            'return'        => $returnUrl,
-            'return_cancel' => $apiClient->getBaseUrl(),
-            'store_baseurl' => (Configuration::get('PS_SSL_ENABLED') ? 'https://' : 'http://')
-                                .$this->context->shop->domain,
-            'store_currency' => 'EUR'
-        ));
-    
-        $url = $apiClient->getBaseUrl() . '/commerce/auth/?' . $query;
-        return $url;
-    }
-
-    /**
-     * TODO: Maybe move this out to main module Class
-     *       make it work for Presta settings
-     * Save api key to database
-     *
-     * @param type $apiKey
-     * @return boolean
-     */
-    public function authenticate($apiKey)
-    {
-        // Implement api key check!
-        if (strlen($apiKey) < 30) {
-            // Implement error handler class
-            echo $this->makeNotice('Could not authenticate!');
-            return true;
-        } else {
-            update_option('sender_woocommerce_api_key', $apiKey);
-            update_option('sender_woocommerce_plugin_active', true);
-            $api = new Sender_Woocommerce_Api();
-            
-            $lists = $api->getAllLists();
-            
-            $forms = $api->getAllForms();
-            
-            if (isset($lists[0]->id)) {
-                update_option('sender_woocommerce_customers_list', array('id' => $lists[0]->id, 'title' => $lists[0]->title));
-            } else {
-                update_option('sender_woocommerce_allow_guest_track', 0);
-            }
-            
-            if (isset($lists[0]->id)) {
-                update_option('sender_woocommerce_registration_list', array('id' => $lists[0]->id, 'title' => $lists[0]->title));
-            } else {
-                update_option('sender_woocommerce_registration_track', 0);
-            }
-            
-            if (isset($forms->error) && get_option('sender_woocommerce_allow_forms')) {
-                update_option('sender_woocommerce_allow_forms', 0);
-            }
-        }
     }
 }
