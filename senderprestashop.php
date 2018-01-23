@@ -54,6 +54,12 @@ class SenderPrestashop extends Module
                 }
             }
         }
+
+        
+        if (!$this->registerHook('displayBackOfficeHeader')
+            || !$this->registerHook('actionCartSave')) {
+            return false;
+        }
         
         return true;
     }
@@ -66,9 +72,40 @@ class SenderPrestashop extends Module
                     return false;
                 }
             }
+
+            $tabsArray = array();
+            $tabsArray[] = Tab::getIdFromClassName("AdminSenderPrestashop");
+            foreach ($tabsArray as $tabId) {
+                if ($tabId) {
+                    $tab = new Tab($tabId);
+                    $tab->delete();
+                }
+            }
         }
 
         return true;
+    }
+
+    public function hookDisplayBackOfficeHeader()
+    {
+        $this->context->controller->addCss($this->_path.'views/css/tab.css');
+    }
+
+    /**
+     * Work in progress
+     *
+     * @return [type] [description]
+     */
+    public function hookActionCartSave()
+    {
+        //return false;
+        if (!$this->active
+            || !Validate::isLoadedObject($this->context->cart)
+            || !Tools::getIsset('id_product')) {
+            return false;
+        }
+        // echo json_encode($this->context->cart->getProducts());
+        return false;
     }
 
     /**
@@ -79,7 +116,7 @@ class SenderPrestashop extends Module
      */
     public function getContent()
     {
-        Tools::redirectAdmin($this->context->link->getAdminLink('AdminSenderPrestashopAuth'));
+        Tools::redirectAdmin($this->context->link->getAdminLink('AdminSenderPrestashop'));
     }
 
     /**
@@ -93,7 +130,7 @@ class SenderPrestashop extends Module
         $id_lang = (int) Configuration::get('PS_LANG_DEFAULT');
 
         $new_tab = new Tab();
-        $new_tab->class_name = "AdminSenderPrestashopAuth";
+        $new_tab->class_name = "AdminSenderPrestashop";
         $new_tab->module = "senderprestashop";
         $new_tab->id_parent = 0;
         foreach ($langs as $l) {

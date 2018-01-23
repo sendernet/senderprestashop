@@ -22,15 +22,19 @@ class SenderApiClient
     private $apiKey;
     private $apiEndpoint;
     private $commerceEndpoint;
-    // private $baseUrl = 'https://app.sender.net';
+    private $baseUrl = 'https://app.sender.net';
     // Debug
-    private $baseUrl = 'http://sinergijait.lt/Vytautas/wipsistema';
+    // private $baseUrl = 'http://sinergijait.lt/Vytautas/wipsistema';
 
-    public function __construct()
+    public function __construct($apiKey = null)
     {
         $this->apiKey = null;
         $this->apiEndpoint = $this->baseUrl . '/api';
         $this->commerceEndpoint = $this->baseUrl . '/commerce/v1';
+
+        if ($apiKey) {
+            $this->apiKey = $apiKey;
+        }
     }
     
     /**
