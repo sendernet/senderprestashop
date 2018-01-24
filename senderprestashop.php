@@ -8,8 +8,23 @@ require_once 'lib/Sender/SenderApiClient.php';
  
 class SenderPrestashop extends Module
 {
+    /**
+     * Sender Module configuration prefix
+     * @var string
+     */
     public $_optionPrefix = 'senderprestashop_';
+
+    /**
+     * Default settings array
+     * @var array
+     */
     private $defaultSettings = array();
+
+    /**
+     * Indicates whether module is in debug mode
+     * @var bool
+     */
+    private $degub = false;
 
 
     public function __construct()
@@ -21,6 +36,9 @@ class SenderPrestashop extends Module
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
         $this->bootstrap = true;
+        $this->views_url = _PS_ROOT_DIR_ . '/' . basename(_PS_MODULE_DIR_) . '/' . $this->name . '/views';
+        $this->module_url = __PS_BASE_URI__ . basename(_PS_MODULE_DIR_) . '/' . $this->name;
+        $this->images_url = $this->module_url . '/views/img/';
 
         parent::__construct();
 
@@ -57,11 +75,18 @@ class SenderPrestashop extends Module
 
         
         if (!$this->registerHook('displayBackOfficeHeader')
-            || !$this->registerHook('actionCartSave')) {
+            || !$this->registerHook('actionCartSave')
+            || !$this->registerHook('displayHeader')) {
             return false;
         }
         
         return true;
+    }
+
+    public function hookdisplayHeader($context)
+    {
+        $apiClient = new SenderApiClient();
+        $apiClient->setApiKey(Configuration::get($this->_optionPrefix . '_api_key'));
     }
     
     public function uninstall()
@@ -96,15 +121,54 @@ class SenderPrestashop extends Module
      *
      * @return [type] [description]
      */
-    public function hookActionCartSave()
+    public function hookActionCartSave($context)
     {
-        //return false;
         if (!$this->active
             || !Validate::isLoadedObject($this->context->cart)
             || !Tools::getIsset('id_product')) {
             return false;
         }
-        // echo json_encode($this->context->cart->getProducts());
+
+        $apiClient = new SenderApiClient();
+        $apiClient->setApiKey(Configuration::get($this->_optionPrefix . '_api_key'));
+
+        $products = $this->context->cart->getProducts();
+
+        $data = [
+            "email" => $this->context->customer->email,
+            "external_id" => $this->context->cart->id,
+            "url" => 'null',
+            "currency" => 'EUR',
+            "grand_total" =>  $this->context->cart->getTotalCart($this->context->cart->id),
+            "products" => []
+        ];
+
+        foreach ($products as $product) {
+            $id_image = Product::getCover($product['id_product']);
+            if (sizeof($id_image) > 0) {
+                $image = new Image($id_image['id_image']);
+                $image_url = _PS_BASE_URL_._THEME_PROD_DIR_.$image->getExistingImgPath().".jpg";
+            }
+
+            $prod = array(
+                    'sku' => $product['reference'],
+                    'name' => $product['name'],
+                    'price' => $product['price'],
+                    'price_display' => $product['id_product'],
+                    'qty' =>  $product['cart_quantity'],
+                    'image' => $image_url
+                );
+            $data['products'][] = $prod;
+        }
+
+        if ($this->context->customer->email && !empty($this->context->cart->getProducts())) {
+            $apiClient->cartTrack($data);
+        }
+
+        if ($this->context->customer->email && empty($this->context->cart->getProducts())) {
+            $apiClient->cartDelete($this->context->cart->id);
+        }
+        
         return false;
     }
 

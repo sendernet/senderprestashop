@@ -22,9 +22,9 @@ class SenderApiClient
     private $apiKey;
     private $apiEndpoint;
     private $commerceEndpoint;
-    private $baseUrl = 'https://app.sender.net';
+    // private $baseUrl = 'https://app.sender.net';
     // Debug
-    // private $baseUrl = 'http://sinergijait.lt/Vytautas/wipsistema';
+    private $baseUrl = 'http://sinergijait.lt/Vytautas/wipsistema';
 
     public function __construct($apiKey = null)
     {
@@ -281,8 +281,6 @@ class SenderApiClient
     private function makeCommerceRequest($params, $method)
     {
 
-        ini_set('display_errors', 'Off');
-
         $params['api_key'] = $this->apiKey;
 
         $options = array(
@@ -306,7 +304,6 @@ class SenderApiClient
      */
     private function makeApiRequest($data)
     {
-        ini_set('display_errors', 'Off');
 
         $data['params']['api_key'] = $this->apiKey;
 

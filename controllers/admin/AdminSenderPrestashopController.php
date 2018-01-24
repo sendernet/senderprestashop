@@ -9,6 +9,10 @@ require_once(dirname(__FILE__) . '/../../lib/Sender/SenderApiClient.php');
 */
 class AdminSenderPrestashopController extends ModuleAdminController
 {
+    /**
+     * Sender.net API Client
+     * @var object
+     */
     private $apiClient;
 
     public function __construct()
@@ -28,7 +32,7 @@ class AdminSenderPrestashopController extends ModuleAdminController
      * Checks if user is authenticated (valid api key)
      * Handle connect and disconnect actions
      *
-     * @return  string Options HTML
+     * @return  string
      */
     public function renderOptions()
     {
@@ -58,7 +62,7 @@ class AdminSenderPrestashopController extends ModuleAdminController
     /**
      * It renders authentication view
      *
-     * @return string authentication html
+     * @return string
      */
     public function renderAuth()
     {
@@ -101,35 +105,33 @@ class AdminSenderPrestashopController extends ModuleAdminController
      */
     public function renderConfigurationMenu()
     {
-        $disconnectUrl = $this->context->shop->getBaseUrl()
-                . basename(_PS_ADMIN_DIR_)
-                . DIRECTORY_SEPARATOR
-                . $this->context->link->getAdminLink('AdminSenderPrestashop')
-                . '&disconnect=true';
 
-        $output .= '
-            <div class="row well">
-                <div class="col-xs-12">
-                    <img src="' . $this->module->getPathUri() . 'views/img/sender_logo.png" alt="Sender Logo" />
-                    <span><small style="vertical-align:bottom;">v' . $this->module->version . '</small></span>
-                    <hr>
-                </div>
-                <div class="col-xs-12">
-                    <h4>
-                    Connected successfully
-                    </h4>
-                    <p>
-                    Your api key is: ' . $this->apiClient->getApiKey() . '
-                    </p>
-                </div>
-                <div class="col-xs-12">
-                    <script type="text/javascript" src="' . $this->apiClient->getAllForms()[0]->script_url . '"></script>
-                </div>
-                <div class="col-xs-12">
-                    <a href="' . $disconnectUrl . '" class="btn" style="background-color: tomato; color: #fff;">' . $this->l('Disconnect') . '</a>
-                </div>
-            </div>
-        ';
+        $disconnectUrl = $this->context->shop->getBaseUrl()
+            . basename(_PS_ADMIN_DIR_)
+            . DIRECTORY_SEPARATOR
+            . $this->context->link->getAdminLink('AdminSenderPrestashop')
+            . '&disconnect=true';
+
+        $output = '';
+
+        // Add dependencies
+        $this->context->controller->addJquery();
+        $this->context->controller->addJS($this->module->views_url . '/js/script.js');
+        $this->context->controller->addJS($this->module->views_url . '/js/sp-vendor-table-sorter.js');
+        $this->context->controller->addCSS($this->module->views_url . '/css/style.css');
+        $this->context->controller->addCSS($this->module->views_url . '/css/material-font.css');
+
+
+        $this->context->smarty->assign([
+            'imageUrl' => $this->module->getPathUri() . 'views/img/sender_logo.png',
+            'apiKey' => $this->apiClient->getApiKey(),
+            'disconnectUrl' => $disconnectUrl,
+            'formUrl' => str_replace('https://', 'http://', $this->apiClient->getAllForms()[1]->script_url),
+            'moduleVersion' => $this->module->version
+        ]);
+
+        $output .= $this->context->smarty->fetch($this->module->views_url . '/templates/admin/view.tpl');
+
         return $output;
     }
 
