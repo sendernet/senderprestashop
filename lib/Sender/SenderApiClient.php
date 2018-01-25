@@ -22,9 +22,9 @@ class SenderApiClient
     private $apiKey;
     private $apiEndpoint;
     private $commerceEndpoint;
-    // private $baseUrl = 'https://app.sender.net';
+    private $baseUrl = 'https://app.sender.net';
     // Debug
-    private $baseUrl = 'http://sinergijait.lt/Vytautas/wipsistema';
+    // private $baseUrl = 'http://sinergijait.lt/Vytautas/wipsistema';
 
     public function __construct($apiKey = null)
     {
@@ -236,6 +236,7 @@ class SenderApiClient
     {
         $params = array(
                       "cart_hash" => $cartHash,
+                      "email" => "vytautas+5@sender.net"
                   );
         
         return $this->makeCommerceRequest($params, 'cart_get');

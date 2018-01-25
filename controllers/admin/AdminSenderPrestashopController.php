@@ -9,16 +9,10 @@ require_once(dirname(__FILE__) . '/../../lib/Sender/SenderApiClient.php');
 */
 class AdminSenderPrestashopController extends ModuleAdminController
 {
-    /**
-     * Sender.net API Client
-     * @var object
-     */
-    private $apiClient;
 
     public function __construct()
     {
         $this->bootstrap = true;
-        $this->apiClient = new SenderApiClient();
         parent::__construct();
     }
 
@@ -46,9 +40,7 @@ class AdminSenderPrestashopController extends ModuleAdminController
             $this->connect($senderApiKey);
         }
 
-        $this->apiClient->setApiKey(Configuration::get($this->module->_optionPrefix . '_api_key'));
-
-        if (!$this->apiClient->checkApiKey()) {
+        if (!$this->module->apiClient->checkApiKey()) {
             // User is NOT authenticated
             return $this->renderAuth();
         } else {
@@ -67,7 +59,7 @@ class AdminSenderPrestashopController extends ModuleAdminController
     public function renderAuth()
     {
         $output = '';
-        $authUrl = $this->apiClient->generateAuthUrl(
+        $authUrl = $this->module->apiClient->generateAuthUrl(
             $this->context->shop->getBaseUrl(),
             $this->context->shop->getBaseUrl()
                 . basename(_PS_ADMIN_DIR_)
@@ -124,9 +116,9 @@ class AdminSenderPrestashopController extends ModuleAdminController
 
         $this->context->smarty->assign([
             'imageUrl' => $this->module->getPathUri() . 'views/img/sender_logo.png',
-            'apiKey' => $this->apiClient->getApiKey(),
+            'apiKey' => $this->module->apiClient->getApiKey(),
             'disconnectUrl' => $disconnectUrl,
-            'formUrl' => str_replace('https://', 'http://', $this->apiClient->getAllForms()[1]->script_url),
+            'formUrl' => str_replace('https://', 'http://', $this->module->apiClient->getAllForms()[1]->script_url),
             'moduleVersion' => $this->module->version
         ]);
 
@@ -145,10 +137,11 @@ class AdminSenderPrestashopController extends ModuleAdminController
      */
     private function connect($apiKey)
     {
-        $this->apiClient->setApiKey($apiKey);
+        $this->module->apiClient->setApiKey($apiKey);
 
-        if ($this->apiClient->checkApiKey()) {
-            Configuration::updateValue($this->module->_optionPrefix . '_api_key', $apiKey);
+        if ($this->module->apiClient->checkApiKey()) {
+            $this->module->logDebug('Connected to Sender. Got key: ' . $apiKey);
+            Configuration::updateValue($this->module->_optionPrefix . 'api_key', $apiKey);
             // Redirect back to module admin page
             $this->redirectToAdminMenu();
         }
@@ -163,7 +156,8 @@ class AdminSenderPrestashopController extends ModuleAdminController
      */
     private function disconnect()
     {
-        Configuration::deleteByName($this->module->_optionPrefix . '_api_key');
+        $this->module->logDebug('Disconnected');
+        Configuration::deleteByName($this->module->_optionPrefix . 'api_key');
         // Redirect back to module admin page
         $this->redirectToAdminMenu();
     }
