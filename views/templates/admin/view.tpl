@@ -27,9 +27,28 @@
     </div>
     <div class="pure-u-1-1 pure-u-lg-18-24 sender-prestashop-content">
         <div id="forms" class="sw-tab-content <?php echo !get_option('sender_woocommerce_has_woocommerce') ? 'sw-current' : '';?>">
-            <h1>One form for you</h1>
-            <div class="col-xs-12">
-                <script type="text/javascript" src="{$formUrl}"></script>
+            <div class="pure-g">
+                <div class="pure-u-1-1">
+                    <h3><i class="zmdi zmdi-format-list-bulleted"></i> Widget is {if not $allowForms}<span id="swToggleWidgetTitle" style="color:red;">disabled</span>{else}<span id="swToggleWidgetTitle" style="color:green;">enabled</span>{/if} </h3>  
+                </div>
+                <div class="pure-u-1-1 pure-u-sm-3-24 sw-details-settings">
+                    <button id="swToggleWidget" style="width: 90%; background-color:{if not $allowForms}green{else}red{/if}" class="sender-prestashop-button">{if not $allowForms}Enable{else}Disable{/if}</button>
+                </div>
+                <div class="pure-u-1-1 pure-u-sm-12-24">
+                    <p>
+                        When enabled, a Sender.net form widget will appear in the customization menu. It allows you to insert your Sender.net form into anywhere on your web page.
+                    </p>
+                    <p>
+                        <a href="#">Manage widgets</a>
+                    </p>
+                </div>
+                <div class="pure-u-1-1 hidden" id="forms_tab">
+                    <select>
+                    {foreach $formsList as $form}
+                        <option value="{$form->id}">{$form->title}</option>
+                    {/foreach}
+                    </select>
+                </div>
             </div>
         </div>
         <div id="sw-push" class="sw-tab-content">
@@ -51,6 +70,3 @@
       
     </div>
 </div>
-
-
-

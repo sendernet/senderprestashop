@@ -1,7 +1,36 @@
-(function($) {
-    'use strict';
+(function( $ ) {
+	'use strict';
+    
+     jQuery(document).ready(function(){
+         
+        jQuery('#swToggleWidget').on('click', function (event) {
+            
+            //jQuery('#swToggleWidget').text('Saving...');
+            //jQuery('#swToggleWidget').attr('disabled', true);
 
-    jQuery(document).ready(function() {
+            //jQuery.post(ajaxurl, { action: 'toggle_form_widget' }, function(response) {
+
+                if(jQuery('#swToggleWidget').hasClass('enabled')) {
+                    jQuery('#swToggleWidget').removeClass('enabled');
+                    jQuery('#swToggleWidgetTitle').text('disabled');
+                    jQuery('#swToggleWidgetTitle').css('color', 'red');
+                    jQuery('#swToggleWidget').text('Enable');
+                    jQuery('#swToggleWidget').css('background-color', 'green');
+                    $('#forms_tab').addClass('hidden');
+                } else {
+                    jQuery('#swToggleWidget').addClass('enabled');
+                    jQuery('#swToggleWidgetTitle').text('enabled');
+                    jQuery('#swToggleWidgetTitle').css('color', 'green');
+                    jQuery('#swToggleWidget').text('Disable');
+                    jQuery('#swToggleWidget').css('background-color', 'red');
+                    $('#forms_tab').removeClass('hidden');
+                }
+
+                //jQuery('#swToggleWidget').removeAttr('disabled');
+                
+            //});
+            
+        });
         /**
          * Tab menu change handler
          */

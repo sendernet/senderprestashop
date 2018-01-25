@@ -112,18 +112,20 @@ class AdminSenderPrestashopController extends ModuleAdminController
         $this->context->controller->addJS($this->module->views_url . '/js/sp-vendor-table-sorter.js');
         $this->context->controller->addCSS($this->module->views_url . '/css/style.css');
         $this->context->controller->addCSS($this->module->views_url . '/css/material-font.css');
-
-
+        
+        
         $this->context->smarty->assign([
             'imageUrl' => $this->module->getPathUri() . 'views/img/sender_logo.png',
             'apiKey' => $this->module->apiClient->getApiKey(),
             'disconnectUrl' => $disconnectUrl,
             'formUrl' => str_replace('https://', 'http://', $this->module->apiClient->getAllForms()[1]->script_url),
-            'moduleVersion' => $this->module->version
+            'moduleVersion' => $this->module->version,
+            'formsList' => $this->module->apiClient->getAllForms(),
+            'allowForms' => Configuration::get($this->module->_optionPrefix . '_allow_forms')
         ]);
 
         $output .= $this->context->smarty->fetch($this->module->views_url . '/templates/admin/view.tpl');
-
+        
         return $output;
     }
 
