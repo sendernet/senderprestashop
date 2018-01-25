@@ -235,8 +235,7 @@ class SenderApiClient
     public function cartGet($cartHash)
     {
         $params = array(
-                      "cart_hash" => $cartHash,
-                      "email" => "vytautas+5@sender.net"
+                      "cart_hash" => $cartHash
                   );
         
         return $this->makeCommerceRequest($params, 'cart_get');
