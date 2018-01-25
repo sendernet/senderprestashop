@@ -5,20 +5,19 @@
          
         jQuery('#swToggleWidget').on('click', function (event) {
             
-            //jQuery('#swToggleWidget').text('Saving...');
-            //jQuery('#swToggleWidget').attr('disabled', true);
+            jQuery('#swToggleWidget').text('Saving...');
+            jQuery('#swToggleWidget').attr('disabled', true);
 
-            //jQuery.post(ajaxurl, { action: 'toggle_form_widget' }, function(response) {
+            jQuery.post(ajaxurl, { action: 'saveAllowForms' }, function(response) {
+                var proceed = jQuery.parseJSON(response);
 
-                if(jQuery('#swToggleWidget').hasClass('enabled')) {
-                    jQuery('#swToggleWidget').removeClass('enabled');
+                if(!proceed.result) {
                     jQuery('#swToggleWidgetTitle').text('disabled');
                     jQuery('#swToggleWidgetTitle').css('color', 'red');
                     jQuery('#swToggleWidget').text('Enable');
                     jQuery('#swToggleWidget').css('background-color', 'green');
                     $('#forms_tab').addClass('hidden');
                 } else {
-                    jQuery('#swToggleWidget').addClass('enabled');
                     jQuery('#swToggleWidgetTitle').text('enabled');
                     jQuery('#swToggleWidgetTitle').css('color', 'green');
                     jQuery('#swToggleWidget').text('Disable');
@@ -26,9 +25,28 @@
                     $('#forms_tab').removeClass('hidden');
                 }
 
-                //jQuery('#swToggleWidget').removeAttr('disabled');
+                jQuery('#swToggleWidget').removeAttr('disabled');
                 
-            //});
+            });
+            
+        });
+        
+        jQuery('#swFormsSelect').on('change', function (event) {
+            
+            jQuery('#swFormsSelect').attr('disabled', true);
+
+            jQuery.post(ajaxurl, { action: 'saveFormId', form_id: jQuery('#swFormsSelect').val() }, function(response) {
+                var proceed = jQuery.parseJSON(response);
+
+                if(!proceed.result) {
+                    console.log('save error');
+                } else {
+                    console.log('save success');
+                }
+
+                jQuery('#swFormsSelect').removeAttr('disabled');
+                
+            });
             
         });
         /**

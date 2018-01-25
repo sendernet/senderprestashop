@@ -118,10 +118,11 @@ class AdminSenderPrestashopController extends ModuleAdminController
             'imageUrl' => $this->module->getPathUri() . 'views/img/sender_logo.png',
             'apiKey' => $this->module->apiClient->getApiKey(),
             'disconnectUrl' => $disconnectUrl,
-            'formUrl' => str_replace('https://', 'http://', $this->module->apiClient->getAllForms()[1]->script_url),
             'moduleVersion' => $this->module->version,
             'formsList' => $this->module->apiClient->getAllForms(),
-            'allowForms' => Configuration::get($this->module->_optionPrefix . '_allow_forms')
+            'allowForms' => Configuration::get($this->module->_optionPrefix . '_allow_forms'),
+            'ajaxUrl' => $this->module->module_url . '/ajax/forms_ajax.php?token=' . Tools::getToken(false),
+            'formId' => Configuration::get($this->module->_optionPrefix . '_form_id')
         ]);
 
         $output .= $this->context->smarty->fetch($this->module->views_url . '/templates/admin/view.tpl');

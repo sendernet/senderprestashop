@@ -1,3 +1,6 @@
+<script>
+    var ajaxurl = '{$ajaxUrl}';
+</script>
 <div class="pure-g sender-prestashop-card">
     <div class="pure-u-1-1 sender-prestashop-header">
         <div class="pure-g">
@@ -42,10 +45,10 @@
                         <a href="#">Manage widgets</a>
                     </p>
                 </div>
-                <div class="pure-u-1-1 hidden" id="forms_tab">
-                    <select>
+                <div class="pure-u-1-1 {if not $allowForms}hidden{/if}" id="forms_tab">
+                    <select id="swFormsSelect" value="{$formId}">
                     {foreach $formsList as $form}
-                        <option value="{$form->id}">{$form->title}</option>
+                        <option {if $form->id eq $formId}selected="selected"{/if} value="{$form->id}">{$form->title}</option>
                     {/foreach}
                     </select>
                 </div>
