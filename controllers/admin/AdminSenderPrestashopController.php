@@ -121,7 +121,7 @@ class AdminSenderPrestashopController extends ModuleAdminController
             'moduleVersion' => $this->module->version,
             'formsList' => $this->module->apiClient->getAllForms(),
             'allowForms' => Configuration::get($this->module->_optionPrefix . '_allow_forms'),
-            'ajaxUrl' => $this->module->module_url . '/ajax/forms_ajax.php?token=' . Tools::getToken(false),
+            'ajaxUrl' => $this->module->module_url . '/ajax/forms_ajax.php?token=' . Tools::getAdminToken($this->module->name),
             'formId' => Configuration::get($this->module->_optionPrefix . '_form_id')
         ]);
 

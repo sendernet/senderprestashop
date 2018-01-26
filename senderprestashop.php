@@ -40,6 +40,7 @@ class SenderPrestashop extends Module
 
     /**
      * Contructor function
+     * @todo  Change $_optionsPrefix to constant like naming SPM_ALLOW_PUSH etc...
      */
     public function __construct()
     {
@@ -50,10 +51,11 @@ class SenderPrestashop extends Module
         $this->need_instance = 0;
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
         $this->bootstrap = true;
+
         $this->views_url = _PS_ROOT_DIR_ . '/' . basename(_PS_MODULE_DIR_) . '/' . $this->name . '/views';
         $this->module_url = __PS_BASE_URI__ . basename(_PS_MODULE_DIR_) . '/' . $this->name;
         $this->images_url = $this->module_url . '/views/img/';
-
+        
         $this->apiClient = new SenderApiClient(Configuration::get($this->_optionPrefix . 'api_key'));
 
         parent::__construct();
@@ -98,7 +100,8 @@ class SenderPrestashop extends Module
         if (!$this->registerHook('displayBackOfficeHeader')
             || !$this->registerHook('actionCartSummary')
             || !$this->registerHook('actionCartSave')
-            || !$this->registerHook('displayHeader')) {
+            || !$this->registerHook('displayHeader')
+            || !$this->registerHook('actionValidateOrder')) {
             return false;
         }
         
@@ -113,7 +116,7 @@ class SenderPrestashop extends Module
     public function hookdisplayHeader($context)
     {
         // Print all the things
-        
+        // ppp($context['cart']);
     }
     
     /**
@@ -262,7 +265,7 @@ class SenderPrestashop extends Module
                     ' . json_encode($cartTrackResult) . '
                 END OF CART TRACK
             ');
-        } else if (empty($cartData['products'])) {
+        } elseif (empty($cartData['products'])) {
             $cartDeleteResult = $this->apiClient->cartDelete($cookie['id_cart']);
             $this->logDebug('
                 CART DELETE
@@ -325,7 +328,7 @@ class SenderPrestashop extends Module
                     ' . json_encode($cartTrackResult) . '
                 END OF CART TRACK
             ');
-        } else if (empty($cartData['products'])) {
+        } elseif (empty($cartData['products']) && isset($cookie['id_cart'])) {
             $cartDeleteResult = $this->apiClient->cartDelete($cookie['id_cart']);
             $this->logDebug('
                 CART DELETE
@@ -337,6 +340,46 @@ class SenderPrestashop extends Module
                 END OF CART DELETE
             ');
         }
+    }
+
+    /**
+     * Hook into order validation. Mark cart as converted since order is made.
+     * Keep in mind that it doesn't mean that payment has been made
+     *
+     * @todo Maybe add option to select which hook to use for conversion
+     *       i.e. Mark as converted only when payment has been confirmed
+     *
+     * @param  object $context
+     * @return object $context
+     */
+    public function hookActionValidateOrder($context)
+    {
+        $this->logDebug('
+            ActionValidateOrder FIRED#
+        ');
+
+        // Return if cart object is not found or module is not active
+        if (!Configuration::get($this->_optionPrefix . 'module_active')
+            || !Validate::isLoadedObject($context['cart'])
+            || !isset($context['cart']->id)) {
+            return $context;
+        }
+
+        // Convert cart
+        $converStatus = $this->apiClient->cartConvert($context['cart']->id);
+
+        $this->logDebug('
+            CART CONVERT:
+
+            Request: 
+                Cart ID: ' . $context['cart']->id . '
+
+            Response:
+                ' . json_encode($converStatus) . '
+
+            CART CONVERT END#
+        ');
+        return $context;
     }
 
     /**
@@ -380,5 +423,37 @@ class SenderPrestashop extends Module
             }
             $this->debugLogger->logDebug($message);
         }
+    }
+
+    /**
+     * Get Sender API Client
+     * make sure that everything is in order
+     *
+     * @return object SenderApiClient
+     */
+    public function apiClient()
+    {
+        // Generate new instance if there is none
+        if (!$this->apiClient) {
+            $this->apiClient = new SenderApiClient();
+            $this->apiClient->setApiKey(Configuration::get($this->_optionPrefix . 'api_key'));
+        }
+
+        // @todo add some clean up to disable module,
+        // delete api key
+        // set module as disabled
+        // or improve api Class that checks the key inside or
+        // something clever
+        //
+        // OR make sure to always check if module is enabled before making ANY
+        // interaction with api client!
+        if (!$this->apiClient->checkApiKey()) {
+            $this->logDebug('API CLIENT: checkApiKey failed.');
+            $this->logDebug('KEY: ' . Configuration::get($this->_optionPrefix . 'api_key'));
+
+            return false;
+        }
+
+        return $this->apiClient;
     }
 }
