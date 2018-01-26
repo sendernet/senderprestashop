@@ -120,9 +120,15 @@ class AdminSenderPrestashopController extends ModuleAdminController
             'disconnectUrl' => $disconnectUrl,
             'moduleVersion' => $this->module->version,
             'formsList' => $this->module->apiClient->getAllForms(),
+            'guestsLists' => $this->module->apiClient->getAllLists(),
+            'customersLists' => $this->module->apiClient->getAllLists(),
             'allowForms' => Configuration::get($this->module->_optionPrefix . '_allow_forms'),
-            'ajaxUrl' => $this->module->module_url . '/ajax/forms_ajax.php?token=' . Tools::getAdminToken($this->module->name),
-            'formId' => Configuration::get($this->module->_optionPrefix . '_form_id')
+            'allowGuestCartTracking' => Configuration::get($this->module->_optionPrefix . '_allow_guest_cart_tracking'),
+            'formsAjaxurl' => $this->module->module_url . '/ajax/forms_ajax.php?token=' . Tools::getAdminToken($this->module->name),
+            'listsAjaxurl' => $this->module->module_url . '/ajax/lists_ajax.php?token=' . Tools::getAdminToken($this->module->name),
+            'formId' => Configuration::get($this->module->_optionPrefix . '_form_id'),
+            'guestListId' => Configuration::get($this->module->_optionPrefix . '_guest_list_id'),
+            'customerListId' => Configuration::get($this->module->_optionPrefix . '_customer_list_id'),
         ]);
 
         $output .= $this->context->smarty->fetch($this->module->views_url . '/templates/admin/view.tpl');

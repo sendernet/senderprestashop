@@ -1,5 +1,6 @@
 <script>
-    var ajaxurl = '{$ajaxUrl}';
+    var formsAjaxurl = '{$formsAjaxurl}';
+    var listsAjaxurl = '{$listsAjaxurl}';
 </script>
 <div class="pure-g sender-prestashop-card">
     <div class="pure-u-1-1 sender-prestashop-header">
@@ -68,6 +69,45 @@
             </div>
             <div class="col-xs-12">
                 <a href="{$disconnectUrl}" class="btn" style="background-color: tomato; color: #fff;">{l s='Disconnect'}</a>
+            </div>
+            <div class="col-xs-12" style="margin-top: 25px;">
+                <div class="pure-g">
+                    <div class="pure-u-1-1">
+                        <h3><i class="zmdi zmdi-shopping-cart"></i> Guest cart tracking is {if not $allowGuestCartTracking}<span id="swToggleGuestCartTrackingTitle" style="color:red;">disabled</span>{else}<span id="swToggleGuestCartTrackingTitle" style="color:green;">enabled</span>{/if} </h3>  
+                    </div>
+                    <div class="pure-u-1-1 pure-u-sm-3-24 sw-details-settings">
+                        <button id="swToggleGuestCartTracking" style="width: 90%; background-color:{if not $allowGuestCartTracking}green{else}red{/if}" class="sender-prestashop-button">{if not $allowGuestCartTracking}Enable{else}Disable{/if}</button>
+                    </div>
+                    <div class="pure-u-1-1 pure-u-sm-12-24">
+                        <p>
+                            When enabled, a Sender.net form widget will appear in the customization menu. It allows you to insert your Sender.net form into anywhere on your web page.
+                        </p>
+                        <p>
+                            <a href="#">Manage widgets</a>
+                        </p>
+                    </div>
+                    <div class="pure-u-1-1 {if not $allowGuestCartTracking}hidden{/if}" id="guests_lists">
+                        <select id="swGuestListSelect" value="{$formId}">
+                        {foreach $guestsLists as $guestsList}
+                            <option {if $guestsList->id eq $guestListId}selected="selected"{/if} value="{$guestsList->id}">{$guestsList->title}</option>
+                        {/foreach}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12" style="margin-top: 25px;">
+                <div class="pure-g">
+                    <div class="pure-u-1-1">
+                        <h3><i class="zmdi zmdi-shopping-cart"></i> Customers list selection</h3>  
+                    </div>
+                    <div class="pure-u-1-1" id="customers_lists">
+                        <select id="swCustomerListSelect" value="{$formId}">
+                        {foreach $customersLists as $customerList}
+                            <option {if $customerList->id eq $customerListId}selected="selected"{/if} value="{$customerList->id}">{$customerList->title}</option>
+                        {/foreach}
+                        </select>
+                    </div>
+                </div>
             </div>
         </div>
       

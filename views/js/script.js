@@ -8,7 +8,7 @@
             jQuery('#swToggleWidget').text('Saving...');
             jQuery('#swToggleWidget').attr('disabled', true);
 
-            jQuery.post(ajaxurl, { action: 'saveAllowForms' }, function(response) {
+            jQuery.post(formsAjaxurl, { action: 'saveAllowForms' }, function(response) {
                 var proceed = jQuery.parseJSON(response);
 
                 if(!proceed.result) {
@@ -31,11 +31,39 @@
             
         });
         
+        jQuery('#swToggleGuestCartTracking').on('click', function (event) {
+            
+            jQuery('#swToggleGuestCartTracking').text('Saving...');
+            jQuery('#swToggleGuestCartTracking').attr('disabled', true);
+
+            jQuery.post(listsAjaxurl, { action: 'saveAllowGuestCartTracking' }, function(response) {
+                var proceed = jQuery.parseJSON(response);
+
+                if(!proceed.result) {
+                    jQuery('#swToggleGuestCartTrackingTitle').text('disabled');
+                    jQuery('#swToggleGuestCartTrackingTitle').css('color', 'red');
+                    jQuery('#swToggleGuestCartTracking').text('Enable');
+                    jQuery('#swToggleGuestCartTracking').css('background-color', 'green');
+                    $('#guests_lists').addClass('hidden');
+                } else {
+                    jQuery('#swToggleGuestCartTrackingTitle').text('enabled');
+                    jQuery('#swToggleGuestCartTrackingTitle').css('color', 'green');
+                    jQuery('#swToggleGuestCartTracking').text('Disable');
+                    jQuery('#swToggleGuestCartTracking').css('background-color', 'red');
+                    $('#guests_lists').removeClass('hidden');
+                }
+
+                jQuery('#swToggleGuestCartTracking').removeAttr('disabled');
+                
+            });
+            
+        });
+        
         jQuery('#swFormsSelect').on('change', function (event) {
             
             jQuery('#swFormsSelect').attr('disabled', true);
 
-            jQuery.post(ajaxurl, { action: 'saveFormId', form_id: jQuery('#swFormsSelect').val() }, function(response) {
+            jQuery.post(formsAjaxurl, { action: 'saveFormId', form_id: jQuery('#swFormsSelect').val() }, function(response) {
                 var proceed = jQuery.parseJSON(response);
 
                 if(!proceed.result) {
@@ -49,6 +77,45 @@
             });
             
         });
+        
+        jQuery('#swGuestListSelect').on('change', function (event) {
+            
+            jQuery('#swGuestListSelect').attr('disabled', true);
+
+            jQuery.post(listsAjaxurl, { action: 'saveGuestListId', list_id: jQuery('#swGuestListSelect').val() }, function(response) {
+                var proceed = jQuery.parseJSON(response);
+
+                if(!proceed.result) {
+                    console.log('save error');
+                } else {
+                    console.log('save success');
+                }
+
+                jQuery('#swGuestListSelect').removeAttr('disabled');
+                
+            });
+            
+        });
+        
+        jQuery('#swCustomerListSelect').on('change', function (event) {
+            
+            jQuery('#swCustomerListSelect').attr('disabled', true);
+
+            jQuery.post(listsAjaxurl, { action: 'saveCustomerListId', list_id: jQuery('#swCustomerListSelect').val() }, function(response) {
+                var proceed = jQuery.parseJSON(response);
+
+                if(!proceed.result) {
+                    console.log('save error');
+                } else {
+                    console.log('save success');
+                }
+
+                jQuery('#swCustomerListSelect').removeAttr('disabled');
+                
+            });
+            
+        });
+        
         /**
          * Tab menu change handler
          */
