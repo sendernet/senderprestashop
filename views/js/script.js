@@ -59,6 +59,34 @@
             
         });
         
+        jQuery('#swTogglePush').on('click', function (event) {
+            
+            jQuery('#swTogglePush').text('Saving...');
+            jQuery('#swTogglePush').attr('disabled', true);
+
+            jQuery.post(pushAjaxurl, { action: 'saveAllowPush' }, function(response) {
+                var proceed = jQuery.parseJSON(response);
+
+                if(!proceed.result) {
+                    jQuery('#swTogglePushTitle').text('disabled');
+                    jQuery('#swTogglePushTitle').css('color', 'red');
+                    jQuery('#swTogglePush').text('Enable');
+                    jQuery('#swTogglePush').css('background-color', 'green');
+                    $('#push_project').addClass('hidden');
+                } else {
+                    jQuery('#swTogglePushTitle').text('enabled');
+                    jQuery('#swTogglePushTitle').css('color', 'green');
+                    jQuery('#swTogglePush').text('Disable');
+                    jQuery('#swTogglePush').css('background-color', 'red');
+                    $('#push_project').removeClass('hidden');
+                }
+
+                jQuery('#swTogglePush').removeAttr('disabled');
+                
+            });
+            
+        });
+        
         jQuery('#swFormsSelect').on('change', function (event) {
             
             jQuery('#swFormsSelect').attr('disabled', true);

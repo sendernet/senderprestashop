@@ -1605,7 +1605,8 @@ th:hover {
     -webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, .16), 0 2px 10px rgba(0, 0, 0, .12);
     box-shadow: 0 2px 5px rgba(0, 0, 0, .16), 0 2px 10px rgba(0, 0, 0, .12);
     text-decoration: none;
-    color: #fff;
+    color: #fff !important;
+    text-decoration: none !important;
     background-color: #009688;
     margin-bottom: 0;
     font-weight: 400;

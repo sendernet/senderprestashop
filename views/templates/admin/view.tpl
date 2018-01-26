@@ -1,6 +1,7 @@
 <script>
     var formsAjaxurl = '{$formsAjaxurl}';
     var listsAjaxurl = '{$listsAjaxurl}';
+    var pushAjaxurl = '{$pushAjaxurl}';
 </script>
 <div class="pure-g sender-prestashop-card">
     <div class="pure-u-1-1 sender-prestashop-header">
@@ -56,7 +57,29 @@
             </div>
         </div>
         <div id="sw-push" class="sw-tab-content">
-            No no, push is no here
+            <div class="col-xs-12" style="margin-top: 25px;">
+                <div class="pure-g">
+                    <div class="pure-u-1-1">
+                        <h3><i class="zmdi zmdi-notifications-active"></i> Push notifications are {if not $allowPush}<span id="swTogglePushTitle" style="color:red;">disabled</span>{else}<span id="swTogglePushTitle" style="color:green;">enabled</span>{/if} </h3>  
+                    </div>
+                    <div class="pure-u-1-1 pure-u-sm-3-24 sw-details-settings">
+                        <button id="swTogglePush" style="width: 90%; background-color:{if not $allowPush}green{else}red{/if}" class="sender-prestashop-button">{if not $allowPush}Enable{else}Disable{/if}</button>
+                    </div>
+                    <div class="pure-u-1-1 {if not $allowPush}hidden{/if}" style="margin-top: 25px;" id="push_project">
+                        {if not $pushProject}
+                        <h3><i class="zmdi zmdi-alert-circle-o"></i> You don't have a push project configured</h3>
+                        <a class="sender-prestashop-button" target="_BLANK" href="{$baseUrl}/push_projects/create">Create a new push project</a>
+                        {else}
+                        <p>
+                            When enabled, this feature shows your push project's subscribe icon on your website. You can manage the push campaigns in your Sender.net account’s dashboard. 
+                        </p>
+                        <p>
+                            <a target="_BLANK" href="http://help.sender.net/section/push-notifications/">Getting started with push notifications</a> | <a target="_BLANK" href="{$baseUrl}/push_campaigns">Manage your push campaigns</a> | <a target="_BLANK" href="{$baseUrl}/push_projects/view">Customize push project</a>
+                        </p>
+                        {/if}
+                    </div>
+                </div>
+            </div>
         </div>
         <div id="settings" class="sw-tab-content">
             <div class="col-xs-12">

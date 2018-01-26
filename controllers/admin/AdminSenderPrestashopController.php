@@ -113,22 +113,30 @@ class AdminSenderPrestashopController extends ModuleAdminController
         $this->context->controller->addCSS($this->module->views_url . '/css/style.css');
         $this->context->controller->addCSS($this->module->views_url . '/css/material-font.css');
         
+        $pushProject = $this->module->apiClient->getPushProject();
+        if($this->isJson($pushProject)){
+            $pushProject = false;
+        }
         
         $this->context->smarty->assign([
             'imageUrl' => $this->module->getPathUri() . 'views/img/sender_logo.png',
             'apiKey' => $this->module->apiClient->getApiKey(),
             'disconnectUrl' => $disconnectUrl,
+            'baseUrl' => $this->module->apiClient->getBaseUrl(),
             'moduleVersion' => $this->module->version,
             'formsList' => $this->module->apiClient->getAllForms(),
             'guestsLists' => $this->module->apiClient->getAllLists(),
             'customersLists' => $this->module->apiClient->getAllLists(),
             'allowForms' => Configuration::get($this->module->_optionPrefix . '_allow_forms'),
             'allowGuestCartTracking' => Configuration::get($this->module->_optionPrefix . '_allow_guest_cart_tracking'),
+            'allowPush' => Configuration::get($this->module->_optionPrefix . '_allow_push'),
             'formsAjaxurl' => $this->module->module_url . '/ajax/forms_ajax.php?token=' . Tools::getAdminToken($this->module->name),
             'listsAjaxurl' => $this->module->module_url . '/ajax/lists_ajax.php?token=' . Tools::getAdminToken($this->module->name),
+            'pushAjaxurl' => $this->module->module_url . '/ajax/push_ajax.php?token=' . Tools::getAdminToken($this->module->name),
             'formId' => Configuration::get($this->module->_optionPrefix . '_form_id'),
             'guestListId' => Configuration::get($this->module->_optionPrefix . '_guest_list_id'),
             'customerListId' => Configuration::get($this->module->_optionPrefix . '_customer_list_id'),
+            'pushProject' => $pushProject,
         ]);
 
         $output .= $this->context->smarty->fetch($this->module->views_url . '/templates/admin/view.tpl');
@@ -187,5 +195,10 @@ class AdminSenderPrestashopController extends ModuleAdminController
                 . $this->context->link->getAdminLink('AdminSenderPrestashop')
         );
         die;
+    }
+    
+    private function isJson($string) {
+        json_decode($string);
+        return (json_last_error() == JSON_ERROR_NONE);
     }
 }
