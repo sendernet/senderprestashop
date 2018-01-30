@@ -9,12 +9,6 @@ require_once 'lib/Sender/SenderApiClient.php';
 class SenderPrestashop extends Module
 {
     /**
-     * Sender Module configuration prefix
-     * @var string
-     */
-    public $_optionPrefix = 'senderprestashop_';
-
-    /**
      * Default settings array
      * @var array
      */
@@ -40,7 +34,7 @@ class SenderPrestashop extends Module
 
     /**
      * Contructor function
-     * @todo  Change $_optionsPrefix to constant like naming SPM_ALLOW_PUSH etc...
+     *
      */
     public function __construct()
     {
@@ -56,7 +50,7 @@ class SenderPrestashop extends Module
         $this->module_url = __PS_BASE_URI__ . basename(_PS_MODULE_DIR_) . '/' . $this->name;
         $this->images_url = $this->module_url . '/views/img/';
         
-        $this->apiClient = new SenderApiClient(Configuration::get($this->_optionPrefix . 'api_key'));
+        // $this->apiClient = new SenderApiClient(Configuration::get('SPM_API_KEY'));
 
         parent::__construct();
 
@@ -65,14 +59,18 @@ class SenderPrestashop extends Module
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
         
         $this->defaultSettings = [
-            $this->_optionPrefix . 'api_key' => 0,
-            $this->_optionPrefix . 'module_active'  => 1,
-            $this->_optionPrefix . 'allow_forms'    => 0,
-            $this->_optionPrefix . 'allow_import'   => 0,
-            $this->_optionPrefix . 'allow_push'     => 0,
-            $this->_optionPrefix . 'customers_list' => 9538,
-            $this->_optionPrefix . 'forms_list'     => '',
-            $this->_optionPrefix . 'allow_guest_tracking' => 1,
+            'SPM_API_KEY'                   => '',
+            'SPM_IS_MODULE_ACTIVE'          => 1,
+            'SPM_ALLOW_FORMS'               => 1,
+            'SPM_ALLOW_IMPORT'              => 1,
+            'SPM_ALLOW_PUSH'                => 1,
+            'SPM_ALLOW_TRACK_NEW_SIGNUPS'   => 1,
+            'SPM_ALLOW_TRACK_CARTS'         => 1,
+            'SPM_CUSTOMERS_LIST_ID'         => 0,
+            'SPM_GUEST_LIST_ID'             => 0,
+            'SPM_FORM_ID'                   => 0,
+            'SPM_FORMS_LIST'                => '',
+            'SPM_ALLOW_GUEST_TRACK'         => 1,
         ];
     }
     
@@ -101,7 +99,10 @@ class SenderPrestashop extends Module
             || !$this->registerHook('actionCartSummary')
             || !$this->registerHook('actionCartSave')
             || !$this->registerHook('displayHeader')
-            || !$this->registerHook('actionValidateOrder')) {
+            || !$this->registerHook('displayHome')
+            || !$this->registerHook('actionValidateOrder')
+            || !$this->registerHook('actionCustomerAccountAdd')
+            || !$this->registerHook('displayFooterProduct')) {
             return false;
         }
         
@@ -146,7 +147,7 @@ class SenderPrestashop extends Module
     }
 
     /**
-     * Add tab css to a BackOffice
+     * Add tab css to the BackOffice
      * @return void
      */
     public function hookDisplayBackOfficeHeader()
@@ -155,8 +156,24 @@ class SenderPrestashop extends Module
     }
 
     /**
-     * Generate cart array for Sender api call
-     * Retrieve products with images
+     * Reset all Sender.net related settings
+     *
+     * @return void
+     */
+    private function disableModule()
+    {
+        $this->logDebug('Disable module!');
+        Configuration::updateValue('SPM_IS_MODULE_ACTIVE', false);
+        Configuration::updateValue('SPM_API_KEY', '');
+        Configuration::updateValue('SPM_FORM_ID', '');
+        Configuration::updateValue('SPM_GUEST_LIST_ID', 0);
+        Configuration::updateValue('SPM_CUSTOMERS_LIST_ID', 0);
+    }
+
+    /**
+     * Helper method to
+     * generate cart array for Sender api call
+     * It also retrieves products with images
      *
      * @todo  Set currency
      * @param  object $cart
@@ -203,80 +220,65 @@ class SenderPrestashop extends Module
      * it fires when user uses instant checkout
      * or logged in user goes to checkout page
      *
-     *
      * @param  object $context
      * @return object $context
      */
     public function hookActionCartSummary($context)
     {
-        $this->logDebug('
-
-            CART SUMMARY FIRED!
-
-        ');
-
         $cookie = $context['cookie']->getAll();
        
         // Validate if we should track
         if (!isset($cookie['email'])
             || !Validate::isLoadedObject($context['cart'])
-            || !Configuration::get($this->_optionPrefix . 'allow_guest_tracking')
-            || !Configuration::get($this->_optionPrefix . 'module_active')) {
+            || !Configuration::get('SPM_ALLOW_GUEST_TRACK')
+            || !Configuration::get('SPM_ALLOW_TRACK_CARTS')
+            || !Configuration::get('SPM_IS_MODULE_ACTIVE')) {
             return $context;
         }
 
-        // Here we check if api key is valid
-        if (!$this->apiClient->checkApiKey()) {
-            // @todo throw an error of wrong or missing api key
-            // and maybe disconnect the plugin
-            // and maybe delete old api key
-            return $context;
-        }
+        $this->logDebug('#hookActionCartSummary START');
 
         // Generate cart data array for api call
         $cartData = $this->mapCartData($context['cart'], $cookie['email']);
         
         if (!empty($cartData['products'])) {
             if ($cookie['is_guest']) {
-                $addTolistResult = $this->apiClient->addToList(
-                    $cookie['email'],
-                    Configuration::get($this->_optionPrefix . 'customers_list'),
-                    $cookie['customer_firstname'],
-                    $cookie['customer_lastname']
+                // Filter out which fields to be taken
+                $recipient = [
+                    'email'      => $cookie['email'],
+                    'firstname'  => $cookie['customer_firstname'],
+                    'lastname'   => $cookie['customer_lastname'],
+                    'created'    => $cookie['date_add'],
+                ];
+
+                $addTolistResult = $this->apiClient()->addToList(
+                    $recipient,
+                    Configuration::get('SPM_GUEST_LIST_ID')
                 );
-                $this->logDebug('
-                    ADD TO LIST
-                    Hook: #hookActionCartSummary
-                    Request:
-                        Email: ' . $cookie['email'] . ' 
-                        List: ' . Configuration::get($this->_optionPrefix . 'customers_list') .'
-                    Response:
-                        ' . json_encode($addTolistResult) . '
-                    END OF ADD TO LIST
-                ');
+
+                $this->logDebug('Add this guest customer: ' .
+                    Tools::jsonEncode($recipient));
+
+                $this->logDebug('Add to list response:' .
+                        Tools::jsonEncode($addTolistResult));
             }
-            $cartTrackResult = $this->apiClient->cartTrack($cartData);
-            $this->logDebug('
-                CART TRACK
-                Hook: #hookActionCartSummary
-                Request:
-                    ' . json_encode($cartData) . '
-                Response:
-                    ' . json_encode($cartTrackResult) . '
-                END OF CART TRACK
-            ');
+
+            $cartTrackResult = $this->apiClient()->cartTrack($cartData);
+
+            $this->logDebug('Cart track request:' .
+                        Tools::jsonEncode($cartData));
+
+            $this->logDebug('Cart track response:' .
+                        Tools::jsonEncode($cartTrackResult));
         } elseif (empty($cartData['products'])) {
-            $cartDeleteResult = $this->apiClient->cartDelete($cookie['id_cart']);
-            $this->logDebug('
-                CART DELETE
-                Hook: #hookActionCartSummary
-                Request:
-                    Cart id: ' . $cookie['id_cart'] . '
-                Response:
-                    ' . json_encode($cartDeleteResult) . '
-                END OF CART DELETE
-            ');
+            $cartDeleteResult = $this->apiClient()->cartDelete($cookie['id_cart']);
+            
+            $this->logDebug('Cart delete response:'
+                . Tools::jsonEncode($cartDeleteResult));
         }
+
+        $this->logDebug('#hookActionCartSummary END');
+
         return $context;
     }
 
@@ -288,58 +290,35 @@ class SenderPrestashop extends Module
      */
     public function hookActionCartSave($context)
     {
-        $this->logDebug('
-
-            CART SAVE FIRED!
-
-        ');
-
         $cookie = $context['cookie']->getAll();
 
         // Validate if we should track
         if (!isset($cookie['email'])
             || !Validate::isLoadedObject($context['cart'])
-            || !Configuration::get($this->_optionPrefix . 'allow_guest_tracking')
-            || !Configuration::get($this->_optionPrefix . 'module_active')
+            || !Configuration::get('SPM_ALLOW_TRACK_CARTS')
+            || !Configuration::get('SPM_IS_MODULE_ACTIVE')
             || $this->context->controller instanceof OrderController) {
             return false;
         }
 
-        // Here we check if api key is valid
-        if (!$this->apiClient->checkApiKey()) {
-            // @todo throw an error of wrong or missing api key
-            // and maybe disconnect the plugin
-            // and maybe delete old api key
-            Configuration::deleteByName($this->module->_optionPrefix . 'api_key');
-            return false;
-        }
+        $this->logDebug('#hookActionCartSave START');
 
         // Generate cart data array for api call
         $cartData = $this->mapCartData($context['cart'], $cookie['email']);
         
         if (!empty($cartData['products'])) {
-            $cartTrackResult = $this->apiClient->cartTrack($cartData);
-            $this->logDebug('
-                CART TRACK
-                Hook: #hookActionCartSave
-                Request:
-                    ' . json_encode($cartData) . '
-                Response:
-                    ' . json_encode($cartTrackResult) . '
-                END OF CART TRACK
-            ');
+            $cartTrackResult = $this->apiClient()->cartTrack($cartData);
+
+            $this->logDebug('Cart track request:' .
+                        Tools::jsonEncode($cartData));
         } elseif (empty($cartData['products']) && isset($cookie['id_cart'])) {
-            $cartDeleteResult = $this->apiClient->cartDelete($cookie['id_cart']);
-            $this->logDebug('
-                CART DELETE
-                Hook: #hookActionCartSave
-                Request:
-                    Cart id: ' . $cookie['id_cart'] . '
-                Response:
-                    ' . json_encode($cartDeleteResult) . '
-                END OF CART DELETE
-            ');
+            $cartDeleteResult = $this->apiClient()->cartDelete($cookie['id_cart']);
+            
+            $this->logDebug('Cart delete response:'
+                . Tools::jsonEncode($cartDeleteResult));
         }
+
+        $this->logDebug('#hookActionCartSave END');
     }
 
     /**
@@ -354,36 +333,147 @@ class SenderPrestashop extends Module
      */
     public function hookActionValidateOrder($context)
     {
-        $this->logDebug('
-            ActionValidateOrder FIRED#
-        ');
-
         // Return if cart object is not found or module is not active
-        if (!Configuration::get($this->_optionPrefix . 'module_active')
+        if (!Configuration::get('SPM_IS_MODULE_ACTIVE')
             || !Validate::isLoadedObject($context['cart'])
             || !isset($context['cart']->id)) {
             return $context;
         }
 
+        $this->logDebug('#hookActionValidateOrder START');
+
         // Convert cart
-        $converStatus = $this->apiClient->cartConvert($context['cart']->id);
+        $converStatus = $this->apiClient()->cartConvert($context['cart']->id);
 
-        $this->logDebug('
-            CART CONVERT:
-
-            Request: 
-                Cart ID: ' . $context['cart']->id . '
-
-            Response:
-                ' . json_encode($converStatus) . '
-
-            CART CONVERT END#
-        ');
+        $this->logDebug('Cart convert response: '
+                . Tools::jsonEncode($converStatus));
         return $context;
     }
 
     /**
-     * Redirects administrator to module configuration page.
+     * Here we handle new signups, we fetch customer info
+     * then if enabled tracking and user has opted in for
+     * a newsletter we add him to the prefered list
+     *
+     * @param  array $context
+     * @return array $context
+     */
+    public function hookactionCustomerAccountAdd($context)
+    {
+
+        // Validate if we should
+        if (!Validate::isLoadedObject($context['newCustomer'])
+            || !Configuration::get('SPM_ALLOW_TRACK_NEW_SIGNUPS')
+            || !Configuration::get('SPM_IS_MODULE_ACTIVE')) {
+            return $context;
+        }
+
+        $this->logDebug('#hookactionCustomerAccountAdd START');
+
+        // Check if user opted in for a newsletter
+        if (!$context['newCustomer']->newsletter
+            || !$context['newCustomer']->optin) {
+            $this->logDebug('Customer did not checked newsletter or optin!');
+            return $context;
+        }
+
+        // Filter out which fields to be taken
+        $recipient = [
+            'email'      => $context['newCustomer']->email,
+            'firstname'  => $context['newCustomer']->firstname,
+            'lastname'   => $context['newCustomer']->lastname,
+            'birthday'   => $context['newCustomer']->birthday,
+            'created'    => $context['newCustomer']->date_add,
+            'optin'      => $context['newCustomer']->optin,
+            'newsletter' => $context['newCustomer']->newsletter,
+            'gender'     => $context['newCustomer']->id_gender == 1 ? $this->l('Male') : $this->l('Female')
+        ];
+
+        $addTolistResult = $this->apiClient()->addToList(
+            $recipient,
+            Configuration::get('SPM_CUSTOMERS_LIST_ID')
+        );
+
+        $this->logDebug('Add this recipient: ' .
+            Tools::jsonEncode($recipient));
+
+        $this->logDebug('Add to list response:' .
+            Tools::jsonEncode($addTolistResult));
+
+        $this->logDebug('#hookactionCustomerAccountAdd END');
+    }
+
+    /**
+     * @todo Make it work. (works only if you change & symbol to %26 in product import wizard)
+     *       Add if to validate
+     *
+     * @param  array $params
+     * @return mixed void [when validation fails] | string [when adding import script]
+     */
+    public function hookDisplayFooterProduct($params)
+    {
+        // Check if we should
+        if (!Validate::isLoadedObject($params['product'])
+            || !Configuration::get('SPM_IS_MODULE_ACTIVE')
+            || !Configuration::get('SPM_ALLOW_IMPORT')) {
+            return;
+        }
+
+        // Get image
+        $images = $params['product']->getWsImages();
+        $image_url = '';
+        
+        if (sizeof($images) > 0) {
+            $image = new Image($images[0]['id']);
+            $image_url = _PS_BASE_URL_._THEME_PROD_DIR_.$image->getExistingImgPath().".jpg";
+        }
+
+        $importScript = '<script type="application/sender+json">
+                {
+                    "name": "' . $params['product']->name . '",
+                    "image": "' . $image_url . '",
+                    "description": "' . $params['product']->description . '",
+                    "price": "' . $params['product']->getPublicPrice() . '",
+                    "special_price": "' . $params['product']->getPublicPrice() . '",
+                    "currency": "EUR",
+                    "quantity": "' . $params['product']->quantity . '"
+                }
+            </script>';
+
+        return $importScript;
+    }
+
+    /**
+     * [hookDisplayHome description]
+     * @param  [type] $params [description]
+     * @return [type]         [description]
+     */
+    public function hookDisplayHome($params)
+    {
+        // Check if we should
+        if (!Configuration::get('SPM_IS_MODULE_ACTIVE')
+            || !Configuration::get('SPM_ALLOW_PUSH')) {
+            return;
+        }
+
+        $formScript = str_replace('https://', 'http://', '<script type="text/javascript" src="' . $this->apiClient()->getFormById(748)->script_url . '"></script>');
+
+        $pushScript = '<script type="text/javascript">
+                (function(p,u,s,h){
+                    p._spq=p._spq||[];
+                    p._spq.push([\'_currentTime\',Date.now()]);
+                    s=u.createElement(\'script\');
+                    s.type=\'text/javascript\';
+                    s.async=true;
+                    s.src="' . str_replace("https://", "https://", $this->apiClient()->getPushProject()) . '";
+                    h=u.getElementsByTagName(\'script\')[0];
+                    h.parentNode.insertBefore(s,h);
+                })(window,document);</script>';
+        return $pushScript . $formScript;
+    }
+
+    /**
+     * Generates Configuration link in modules selection view
      */
     public function getContent()
     {
@@ -391,7 +481,7 @@ class SenderPrestashop extends Module
     }
 
     /**
-     * Add Module Settings tab
+     * Add Module Settings tab to the sidebar
      */
     private function addTabs()
     {
@@ -412,7 +502,10 @@ class SenderPrestashop extends Module
     }
 
     /**
-     * Log message to a file
+     * This method handles debug message logging
+     * to a file
+     *
+     * @param string $message
      */
     public function logDebug($message)
     {
@@ -421,14 +514,17 @@ class SenderPrestashop extends Module
                 $this->debugLogger = new FileLogger(0);
                 $this->debugLogger->setFilename(_PS_ROOT_DIR_.'/log/sender_prestashop_logs_'.date('Ymd').'.log');
             }
+            $this->debugLogger->logDebug(' ');
             $this->debugLogger->logDebug($message);
+            $this->debugLogger->logDebug(' ');
         }
     }
 
     /**
-     * Get Sender API Client
-     * make sure that everything is in order
+     * Get Sender API Client instance
+     * and make sure that everything is in order
      *
+     * @todo  described bellow
      * @return object SenderApiClient
      */
     public function apiClient()
@@ -436,7 +532,7 @@ class SenderPrestashop extends Module
         // Generate new instance if there is none
         if (!$this->apiClient) {
             $this->apiClient = new SenderApiClient();
-            $this->apiClient->setApiKey(Configuration::get($this->_optionPrefix . 'api_key'));
+            $this->apiClient->setApiKey(Configuration::get('SPM_API_KEY'));
         }
 
         // @todo add some clean up to disable module,
@@ -448,8 +544,12 @@ class SenderPrestashop extends Module
         // OR make sure to always check if module is enabled before making ANY
         // interaction with api client!
         if (!$this->apiClient->checkApiKey()) {
-            $this->logDebug('API CLIENT: checkApiKey failed.');
-            $this->logDebug('KEY: ' . Configuration::get($this->_optionPrefix . 'api_key'));
+            $this->logDebug('apiClient(): checkApiKey failed.');
+            $this->logDebug('Key used: ' . Configuration::get('SPM_API_KEY'));
+
+            // Disable module
+            // DEBUG
+            $this->disableModule();
 
             return false;
         }

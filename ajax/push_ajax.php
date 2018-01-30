@@ -7,17 +7,19 @@ $senderprestashop = new SenderPrestashop();
 
 
 if (Tools::getValue('token') !== Tools::getAdminToken($senderprestashop->name)) {
-    die( Tools::jsonEncode( array( 'result' => false )));
+    die(Tools::jsonEncode(array( 'result' => false )));
 } else {
     switch (Tools::getValue('action')) {
-        case 'saveAllowPush' :
-            if (Configuration::updateValue($senderprestashop->_optionPrefix . '_allow_push',
-                !Configuration::get($senderprestashop->_optionPrefix . '_allow_push'))) {
-                die( Tools::jsonEncode( array(
-                    'result' => Configuration::get($senderprestashop->_optionPrefix . '_allow_push')
+        case 'saveAllowPush':
+            if (Configuration::updateValue(
+                'SPM_ALLOW_PUSH',
+                !Configuration::get('SPM_ALLOW_PUSH')
+            )) {
+                die(Tools::jsonEncode(array(
+                    'result' => Configuration::get('SPM_ALLOW_PUSH')
                 )));
             }
-            die( Tools::jsonEncode( array( 'result' => false )));
+            die(Tools::jsonEncode(array( 'result' => false )));
             break;
         default:
             exit;

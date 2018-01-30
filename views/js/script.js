@@ -1,17 +1,17 @@
-(function( $ ) {
-	'use strict';
-    
-     jQuery(document).ready(function(){
-         
-        jQuery('#swToggleWidget').on('click', function (event) {
-            
+(function($) {
+    'use strict';
+
+    jQuery(document).ready(function() {
+
+        jQuery('#swToggleWidget').on('click', function(event) {
+
             jQuery('#swToggleWidget').text('Saving...');
             jQuery('#swToggleWidget').attr('disabled', true);
 
             jQuery.post(formsAjaxurl, { action: 'saveAllowForms' }, function(response) {
                 var proceed = jQuery.parseJSON(response);
 
-                if(!proceed.result) {
+                if (!proceed.result) {
                     jQuery('#swToggleWidgetTitle').text('disabled');
                     jQuery('#swToggleWidgetTitle').css('color', 'red');
                     jQuery('#swToggleWidget').text('Enable');
@@ -26,20 +26,20 @@
                 }
 
                 jQuery('#swToggleWidget').removeAttr('disabled');
-                
+
             });
-            
+
         });
-        
-        jQuery('#swToggleGuestCartTracking').on('click', function (event) {
-            
+
+        jQuery('#swToggleGuestCartTracking').on('click', function(event) {
+
             jQuery('#swToggleGuestCartTracking').text('Saving...');
             jQuery('#swToggleGuestCartTracking').attr('disabled', true);
 
             jQuery.post(listsAjaxurl, { action: 'saveAllowGuestCartTracking' }, function(response) {
                 var proceed = jQuery.parseJSON(response);
 
-                if(!proceed.result) {
+                if (!proceed.result) {
                     jQuery('#swToggleGuestCartTrackingTitle').text('disabled');
                     jQuery('#swToggleGuestCartTrackingTitle').css('color', 'red');
                     jQuery('#swToggleGuestCartTracking').text('Enable');
@@ -54,20 +54,21 @@
                 }
 
                 jQuery('#swToggleGuestCartTracking').removeAttr('disabled');
-                
+
             });
-            
+
         });
-        
-        jQuery('#swTogglePush').on('click', function (event) {
-            
+
+        jQuery('#swTogglePush').on('click', function(event) {
+            console.log(true)
+
             jQuery('#swTogglePush').text('Saving...');
             jQuery('#swTogglePush').attr('disabled', true);
 
             jQuery.post(pushAjaxurl, { action: 'saveAllowPush' }, function(response) {
                 var proceed = jQuery.parseJSON(response);
 
-                if(!proceed.result) {
+                if (!proceed.result) {
                     jQuery('#swTogglePushTitle').text('disabled');
                     jQuery('#swTogglePushTitle').css('color', 'red');
                     jQuery('#swTogglePush').text('Enable');
@@ -82,68 +83,68 @@
                 }
 
                 jQuery('#swTogglePush').removeAttr('disabled');
-                
+
             });
-            
+
         });
-        
-        jQuery('#swFormsSelect').on('change', function (event) {
-            
+
+        jQuery('#swFormsSelect').on('change', function(event) {
+
             jQuery('#swFormsSelect').attr('disabled', true);
 
             jQuery.post(formsAjaxurl, { action: 'saveFormId', form_id: jQuery('#swFormsSelect').val() }, function(response) {
                 var proceed = jQuery.parseJSON(response);
 
-                if(!proceed.result) {
+                if (!proceed.result) {
                     console.log('save error');
                 } else {
                     console.log('save success');
                 }
 
                 jQuery('#swFormsSelect').removeAttr('disabled');
-                
+
             });
-            
+
         });
-        
-        jQuery('#swGuestListSelect').on('change', function (event) {
-            
+
+        jQuery('#swGuestListSelect').on('change', function(event) {
+
             jQuery('#swGuestListSelect').attr('disabled', true);
 
             jQuery.post(listsAjaxurl, { action: 'saveGuestListId', list_id: jQuery('#swGuestListSelect').val() }, function(response) {
                 var proceed = jQuery.parseJSON(response);
 
-                if(!proceed.result) {
+                if (!proceed.result) {
                     console.log('save error');
                 } else {
                     console.log('save success');
                 }
 
                 jQuery('#swGuestListSelect').removeAttr('disabled');
-                
+
             });
-            
+
         });
-        
-        jQuery('#swCustomerListSelect').on('change', function (event) {
-            
+
+        jQuery('#swCustomerListSelect').on('change', function(event) {
+
             jQuery('#swCustomerListSelect').attr('disabled', true);
 
             jQuery.post(listsAjaxurl, { action: 'saveCustomerListId', list_id: jQuery('#swCustomerListSelect').val() }, function(response) {
                 var proceed = jQuery.parseJSON(response);
 
-                if(!proceed.result) {
+                if (!proceed.result) {
                     console.log('save error');
                 } else {
                     console.log('save success');
                 }
 
                 jQuery('#swCustomerListSelect').removeAttr('disabled');
-                
+
             });
-            
+
         });
-        
+
         /**
          * Tab menu change handler
          */

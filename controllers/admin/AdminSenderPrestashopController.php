@@ -40,7 +40,7 @@ class AdminSenderPrestashopController extends ModuleAdminController
             $this->connect($senderApiKey);
         }
 
-        if (!$this->module->apiClient->checkApiKey()) {
+        if (!$this->module->apiClient()) {
             // User is NOT authenticated
             return $this->renderAuth();
         } else {
@@ -59,7 +59,7 @@ class AdminSenderPrestashopController extends ModuleAdminController
     public function renderAuth()
     {
         $output = '';
-        $authUrl = $this->module->apiClient->generateAuthUrl(
+        $authUrl = SenderApiClient::generateAuthUrl(
             $this->context->shop->getBaseUrl(),
             $this->context->shop->getBaseUrl()
                 . basename(_PS_ADMIN_DIR_)
@@ -113,29 +113,29 @@ class AdminSenderPrestashopController extends ModuleAdminController
         $this->context->controller->addCSS($this->module->views_url . '/css/style.css');
         $this->context->controller->addCSS($this->module->views_url . '/css/material-font.css');
         
-        $pushProject = $this->module->apiClient->getPushProject();
-        if($this->isJson($pushProject)){
+        $pushProject = $this->module->apiClient()->getPushProject();
+        if ($this->isJson($pushProject)) {
             $pushProject = false;
         }
         
         $this->context->smarty->assign([
             'imageUrl' => $this->module->getPathUri() . 'views/img/sender_logo.png',
-            'apiKey' => $this->module->apiClient->getApiKey(),
+            'apiKey' => $this->module->apiClient()->getApiKey(),
             'disconnectUrl' => $disconnectUrl,
-            'baseUrl' => $this->module->apiClient->getBaseUrl(),
+            'baseUrl' => $this->module->apiClient()->getBaseUrl(),
             'moduleVersion' => $this->module->version,
-            'formsList' => $this->module->apiClient->getAllForms(),
-            'guestsLists' => $this->module->apiClient->getAllLists(),
-            'customersLists' => $this->module->apiClient->getAllLists(),
-            'allowForms' => Configuration::get($this->module->_optionPrefix . '_allow_forms'),
-            'allowGuestCartTracking' => Configuration::get($this->module->_optionPrefix . '_allow_guest_cart_tracking'),
-            'allowPush' => Configuration::get($this->module->_optionPrefix . '_allow_push'),
+            'formsList' => $this->module->apiClient()->getAllForms(),
+            'guestsLists' => $this->module->apiClient()->getAllLists(),
+            'customersLists' => $this->module->apiClient()->getAllLists(),
+            'allowForms' => Configuration::get('SPM_ALLOW_FORMS'),
+            'allowGuestCartTracking' => Configuration::get('SPM_ALLOW_GUEST_TRACK'),
+            'allowPush' => Configuration::get('SPM_ALLOW_PUSH'),
             'formsAjaxurl' => $this->module->module_url . '/ajax/forms_ajax.php?token=' . Tools::getAdminToken($this->module->name),
             'listsAjaxurl' => $this->module->module_url . '/ajax/lists_ajax.php?token=' . Tools::getAdminToken($this->module->name),
             'pushAjaxurl' => $this->module->module_url . '/ajax/push_ajax.php?token=' . Tools::getAdminToken($this->module->name),
-            'formId' => Configuration::get($this->module->_optionPrefix . '_form_id'),
-            'guestListId' => Configuration::get($this->module->_optionPrefix . '_guest_list_id'),
-            'customerListId' => Configuration::get($this->module->_optionPrefix . '_customer_list_id'),
+            'formId' => Configuration::get('SPM_FORM_ID'),
+            'guestListId' => Configuration::get('SPM_GUEST_LIST_ID'),
+            'customerListId' => Configuration::get('SPM_CUSTOMERS_LIST_ID'),
             'pushProject' => $pushProject,
         ]);
 
@@ -154,11 +154,19 @@ class AdminSenderPrestashopController extends ModuleAdminController
      */
     private function connect($apiKey)
     {
-        $this->module->apiClient->setApiKey($apiKey);
+        if (!$apiKey) {
+            return;
+        }
 
-        if ($this->module->apiClient->checkApiKey()) {
+        $apiClient = new SenderApiClient();
+
+        $apiClient->setApiKey($apiKey);
+
+        if ($apiClient->checkApiKey()) {
             $this->module->logDebug('Connected to Sender. Got key: ' . $apiKey);
-            Configuration::updateValue($this->module->_optionPrefix . 'api_key', $apiKey);
+            Configuration::updateValue('SPM_API_KEY', $apiKey);
+            Configuration::updateValue('SPM_IS_MODULE_ACTIVE', true);
+            unset($apiClient);
             // Redirect back to module admin page
             $this->redirectToAdminMenu();
         }
@@ -174,7 +182,7 @@ class AdminSenderPrestashopController extends ModuleAdminController
     private function disconnect()
     {
         $this->module->logDebug('Disconnected');
-        Configuration::deleteByName($this->module->_optionPrefix . 'api_key');
+        Configuration::deleteByName('SPM_API_KEY');
         // Redirect back to module admin page
         $this->redirectToAdminMenu();
     }
@@ -197,7 +205,8 @@ class AdminSenderPrestashopController extends ModuleAdminController
         die;
     }
     
-    private function isJson($string) {
+    private function isJson($string)
+    {
         json_decode($string);
         return (json_last_error() == JSON_ERROR_NONE);
     }

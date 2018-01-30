@@ -19,6 +19,8 @@ if (!defined('_PS_VERSION_')) {
  */
 class SenderApiClient
 {
+
+    public $version = '1.4';
     private $apiKey;
     private $apiEndpoint;
     private $commerceEndpoint;
@@ -104,17 +106,18 @@ class SenderApiClient
      * @param string $baseUrl [website base url]
      * @param string $returnUrl [url to return with api key attached]
      */
-    public function generateAuthUrl($baseUrl, $returnUrl)
+    public static function generateAuthUrl($baseUrl, $returnUrl)
     {
+        $senderUrl = 'https://app.sender.net';
 
         $query = http_build_query(array(
             'return'        => $returnUrl . '&response_key=API_KEY',
-            'return_cancel' => $this->getBaseUrl(),
+            'return_cancel' => $senderUrl,
             'store_baseurl' => $baseUrl,
             'store_currency' => 'EUR'
         ));
     
-        return $this->getBaseUrl() . '/commerce/auth/?' . $query;
+        return $senderUrl . '/commerce/auth/?' . $query;
     }
 
 
@@ -191,22 +194,17 @@ class SenderApiClient
     /**
      * Add user or info to mailinglist
      *
-     * @param type $email
-     * @param type $listId
-     * @param type $fname
-     * @param type $lname
-     * @return type
+     * @param object $recipient
+     * @param int $listId
+     * @return array
      */
-    public function addToList($email, $listId, $fname = '', $lname = '')
+    public function addToList($recipient, $listId)
     {
         $data = array(
             "method" => "listSubscribe",
             "params" => array(
                 "list_id" => $listId,
-                "emails" => array(
-                    'email' => $email,
-                    'firstname' => $fname,
-                    'lastname' => $lname)
+                "emails" => [(object) $recipient]
             )
         );
         
