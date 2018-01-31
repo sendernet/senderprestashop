@@ -30,13 +30,15 @@
                     jQuery('#swToggleWidgetTitle').text('disabled');
                     jQuery('#swToggleWidgetTitle').css('color', 'red');
                     jQuery('#swToggleWidget').text('Enable');
-                    jQuery('#swToggleWidget').css('background-color', 'green');
+                    jQuery('#swToggleWidget').removeClass('btn-danger');
+                    jQuery('#swToggleWidget').addClass('btn-success');
                     $('#forms_tab').addClass('hidden');
                 } else {
                     jQuery('#swToggleWidgetTitle').text('enabled');
                     jQuery('#swToggleWidgetTitle').css('color', 'green');
                     jQuery('#swToggleWidget').text('Disable');
-                    jQuery('#swToggleWidget').css('background-color', 'red');
+                    jQuery('#swToggleWidget').removeClass('btn-success');
+                    jQuery('#swToggleWidget').addClass('btn-danger');
                     $('#forms_tab').removeClass('hidden');
                 }
 
@@ -51,20 +53,22 @@
             jQuery('#swToggleGuestCartTracking').text('Saving...');
             jQuery('#swToggleGuestCartTracking').attr('disabled', true);
 
-            jQuery.post(listsAjaxurl, { action: 'saveAllowGuestCartTracking' }, function(response) {
+            jQuery.post(cartsAjaxurl, { action: 'saveAllowGuestCartTracking' }, function(response) {
                 var proceed = jQuery.parseJSON(response);
 
                 if (!proceed.result) {
                     jQuery('#swToggleGuestCartTrackingTitle').text('disabled');
                     jQuery('#swToggleGuestCartTrackingTitle').css('color', 'red');
                     jQuery('#swToggleGuestCartTracking').text('Enable');
-                    jQuery('#swToggleGuestCartTracking').css('background-color', 'green');
+                    jQuery('#swToggleGuestCartTracking').removeClass('btn-danger');
+                    jQuery('#swToggleGuestCartTracking').addClass('btn-success');
                     $('#guests_lists').addClass('hidden');
                 } else {
                     jQuery('#swToggleGuestCartTrackingTitle').text('enabled');
                     jQuery('#swToggleGuestCartTrackingTitle').css('color', 'green');
                     jQuery('#swToggleGuestCartTracking').text('Disable');
-                    jQuery('#swToggleGuestCartTracking').css('background-color', 'red');
+                    jQuery('#swToggleGuestCartTracking').removeClass('btn-success');
+                    jQuery('#swToggleGuestCartTracking').addClass('btn-danger');
                     $('#guests_lists').removeClass('hidden');
                 }
 
@@ -87,14 +91,18 @@
                     jQuery('#swTogglePushTitle').text('disabled');
                     jQuery('#swTogglePushTitle').css('color', 'red');
                     jQuery('#swTogglePush').text('Enable');
-                    jQuery('#swTogglePush').css('background-color', 'green');
-                    $('#push_project').addClass('hidden');
+                    jQuery('#swTogglePush').removeClass('btn-danger');
+                    jQuery('#swTogglePush').addClass('btn-success');
+                    $('#push_enabled').addClass('hidden');
+                    $('#push_disabled').removeClass('hidden');
                 } else {
                     jQuery('#swTogglePushTitle').text('enabled');
                     jQuery('#swTogglePushTitle').css('color', 'green');
                     jQuery('#swTogglePush').text('Disable');
-                    jQuery('#swTogglePush').css('background-color', 'red');
-                    $('#push_project').removeClass('hidden');
+                    jQuery('#swTogglePush').removeClass('btn-success');
+                    jQuery('#swTogglePush').addClass('btn-danger');
+                    $('#push_enabled').removeClass('hidden');
+                    $('#push_disabled').addClass('hidden');
                 }
 
                 jQuery('#swTogglePush').removeAttr('disabled');
@@ -163,12 +171,12 @@
         /**
          * Tab menu change handler
          */
-        jQuery('ul.sw-tabs li').click(function() {
+        jQuery('ul.spm-tabs li').click(function() {
             var tab_id = jQuery(this).data().tab;
-            jQuery('ul.sw-tabs li').removeClass('sw-current').removeClass('sw-active');
-            jQuery('.sw-tab-content').removeClass('sw-current');
-            jQuery("#" + tab_id).addClass('sw-current');
-            jQuery(this).addClass('sw-current').addClass('sw-active');
+            jQuery('ul.spm-tabs li').removeClass('spm-current').removeClass('spm-active');
+            jQuery('.spm-tab-content').removeClass('spm-current');
+            jQuery("#" + tab_id).addClass('spm-current');
+            jQuery(this).addClass('spm-current').addClass('spm-active');
         })
 
         if (window.location.hash) {

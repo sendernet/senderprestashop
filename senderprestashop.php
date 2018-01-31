@@ -73,7 +73,6 @@ class SenderPrestashop extends Module
             'SPM_CUSTOMERS_LIST_ID'         => 0,
             'SPM_GUEST_LIST_ID'             => 0,
             'SPM_FORM_ID'                   => 0,
-            'SPM_FORMS_LIST'                => '',
             'SPM_ALLOW_GUEST_TRACK'         => 1,
         ];
     }
