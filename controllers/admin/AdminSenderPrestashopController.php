@@ -1,12 +1,17 @@
 <?php
+/**
+ * 2010-2018 Sender.net
+ *
+ * Sender.net Integration module for prestahop
+ *
+ * @author Sender.net <info@sender.net>
+ * @copyright 2010-2018 Sender.net
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License v. 3.0 (OSL-3.0)
+ * Sender.net
+ */
 
 require_once(dirname(__FILE__) . '/../../lib/Sender/SenderApiClient.php');
 
-/**
-* Admin View Controller
-*
-*
-*/
 class AdminSenderPrestashopController extends ModuleAdminController
 {
 
@@ -79,11 +84,14 @@ class AdminSenderPrestashopController extends ModuleAdminController
                         ' . $this->l('Sender.net integration authentication') . '
                     </h4>
                     <p>
-                        ' . $this->l('First you must authenticate yourself with sender.net, click authenticate to enter your credentials') . '
+                        ' . $this->l('First you must authenticate yourself with sender.net,
+                         click authenticate to enter your credentials') . '
                     </p>
                 </div>
                 <div class="col-xs-12">
-                    <a href="' . $authUrl . '" class="btn" style="background-color: #009587; color: #fff;">' . $this->l('Authenticate') . '</a>
+                    <a href="' . $authUrl . '" class="btn" style="background-color: #009587; color: #fff;">
+                    ' . $this->l('Authenticate') . '
+                    </a>
                 </div>
             </div>
         ';
@@ -118,7 +126,7 @@ class AdminSenderPrestashopController extends ModuleAdminController
             $pushProject = false;
         }
         
-        $this->context->smarty->assign([
+        $this->context->smarty->assign(array(
             'imageUrl' => $this->module->getPathUri() . 'views/img/sender_logo.png',
             'apiKey' => $this->module->apiClient()->getApiKey(),
             'disconnectUrl' => $disconnectUrl,
@@ -131,15 +139,25 @@ class AdminSenderPrestashopController extends ModuleAdminController
             'allowGuestCartTracking' => Configuration::get('SPM_ALLOW_GUEST_TRACK'),
             'allowCartTracking' => Configuration::get('SPM_ALLOW_TRACK_CARTS'),
             'allowPush' => Configuration::get('SPM_ALLOW_PUSH'),
-            'cartsAjaxurl' => $this->module->module_url . '/ajax/carts_ajax.php?token=' . Tools::getAdminToken($this->module->name),
-            'formsAjaxurl' => $this->module->module_url . '/ajax/forms_ajax.php?token=' . Tools::getAdminToken($this->module->name),
-            'listsAjaxurl' => $this->module->module_url . '/ajax/lists_ajax.php?token=' . Tools::getAdminToken($this->module->name),
-            'pushAjaxurl' => $this->module->module_url . '/ajax/push_ajax.php?token=' . Tools::getAdminToken($this->module->name),
+
+            'cartsAjaxurl' => $this->module->module_url
+                                        . '/ajax/carts_ajax.php?token='
+                                        . Tools::getAdminToken($this->module->name),
+
+            'formsAjaxurl' => $this->module->module_url . '/ajax/forms_ajax.php?token='
+                                        . Tools::getAdminToken($this->module->name),
+
+            'listsAjaxurl' => $this->module->module_url . '/ajax/lists_ajax.php?token='
+                                        . Tools::getAdminToken($this->module->name),
+
+            'pushAjaxurl' => $this->module->module_url . '/ajax/push_ajax.php?token='
+                                        . Tools::getAdminToken($this->module->name),
+                                        
             'formId' => Configuration::get('SPM_FORM_ID'),
             'guestListId' => Configuration::get('SPM_GUEST_LIST_ID'),
             'customerListId' => Configuration::get('SPM_CUSTOMERS_LIST_ID'),
             'pushProject' => $pushProject,
-        ]);
+        ));
 
         $output .= $this->context->smarty->fetch($this->module->views_url . '/templates/admin/view.tpl');
         
@@ -171,6 +189,10 @@ class AdminSenderPrestashopController extends ModuleAdminController
             unset($apiClient);
             // Redirect back to module admin page
             $this->redirectToAdminMenu();
+        } else {
+            $this->errors[] = Tools::displayError($this->l('
+                Could not authenticate. Please try again.
+                 If this message persists please contact us at support@sender.net'));
         }
     }
 
@@ -197,14 +219,12 @@ class AdminSenderPrestashopController extends ModuleAdminController
      */
     private function redirectToAdminMenu()
     {
-        header(
-            'Location: '
-                . $this->context->shop->getBaseUrl()
+        Tools::redirect(
+            $this->context->shop->getBaseUrl()
                 . basename(_PS_ADMIN_DIR_)
                 . DIRECTORY_SEPARATOR
                 . $this->context->link->getAdminLink('AdminSenderPrestashop')
         );
-        die;
     }
     
     private function isJson($string)

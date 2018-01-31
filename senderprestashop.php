@@ -1,4 +1,14 @@
 <?php
+/**
+ * 2010-2018 Sender.net
+ *
+ * Sender.net Integration module for prestahop
+ *
+ * @author Sender.net <info@sender.net>
+ * @copyright 2010-2018 Sender.net
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License v. 3.0 (OSL-3.0)
+ * Sender.net
+ */
 
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -12,7 +22,7 @@ class SenderPrestashop extends Module
      * Default settings array
      * @var array
      */
-    private $defaultSettings = [];
+    private $defaultSettings = array();
 
     /**
      * Indicates whether module is in debug mode
@@ -43,7 +53,10 @@ class SenderPrestashop extends Module
         $this->version = '1.0.0';
         $this->author = 'Sender.net';
         $this->need_instance = 0;
-        $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
+        $this->ps_versions_compliancy = array(
+            'min' => '1.6',
+            'max' => _PS_VERSION_
+        );
         $this->bootstrap = true;
 
         $this->views_url = _PS_ROOT_DIR_ . '/' . basename(_PS_MODULE_DIR_) . '/' . $this->name . '/views';
@@ -62,7 +75,7 @@ class SenderPrestashop extends Module
         $this->description = $this->l('Sender.net email marketing integration for PrestaShop.');
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
         
-        $this->defaultSettings = [
+        $this->defaultSettings = array(
             'SPM_API_KEY'                   => '',
             'SPM_IS_MODULE_ACTIVE'          => 1,
             'SPM_ALLOW_FORMS'               => 1,
@@ -74,7 +87,7 @@ class SenderPrestashop extends Module
             'SPM_GUEST_LIST_ID'             => 0,
             'SPM_FORM_ID'                   => 0,
             'SPM_ALLOW_GUEST_TRACK'         => 1,
-        ];
+        );
     }
     
     /**
@@ -120,8 +133,6 @@ class SenderPrestashop extends Module
      */
     public function hookdisplayHeader($context)
     {
-
-
     }
 
     /**
@@ -138,12 +149,12 @@ class SenderPrestashop extends Module
         $this->logDebug('Selected list: ' . Configuration::get('SPM_GUEST_LIST_ID'));
 
         foreach ($oldSubscribers as $subscriber) {
-            $this->apiClient()->addToList([
+            $this->apiClient()->addToList(array(
                 'email'   => $subscriber['email'],
                 'created' => $subscriber['newsletter_date_add'],
                 'active'  => $subscriber['active'],
                 'source'  => $this->l('Newsletter')
-            ], Configuration::get('SPM_GUEST_LIST_ID'));
+            ), Configuration::get('SPM_GUEST_LIST_ID'));
             $this->logDebug('Added: ' . $subscriber['email']);
         }
 
@@ -158,13 +169,13 @@ class SenderPrestashop extends Module
     public function uninstall()
     {
         if (parent::uninstall()) {
-            foreach ($this->defaultSettings as $defaultSettingKey => $defaultSettingValue) {
+            foreach (array_keys($this->defaultSettings) as $defaultSettingKey) {
                 if (!Configuration::deleteByName($defaultSettingKey)) {
                     return false;
                 }
             }
 
-            $tabsArray = [];
+            $tabsArray = array();
             $tabsArray[] = Tab::getIdFromClassName("AdminSenderPrestashop");
             foreach ($tabsArray as $tabId) {
                 if ($tabId) {
@@ -213,7 +224,7 @@ class SenderPrestashop extends Module
      */
     private function mapCartData($cart, $email)
     {
-        $data = [
+        $data = array(
             "email"       => $email,
             "external_id" => $cart->id,
             "url"         => $this->context->link->getModuleLink(
@@ -222,8 +233,8 @@ class SenderPrestashop extends Module
             ) . '&hash={$cart_hash}',
             "currency"    => Currency::getCurrent()->iso_code,
             "grand_total" =>  $cart->getTotalCart($cart->id),
-            "products"    => []
-        ];
+            "products"    => array()
+        );
 
         $products = $cart->getProducts();
 
@@ -234,14 +245,14 @@ class SenderPrestashop extends Module
                 $image_url = _PS_BASE_URL_._THEME_PROD_DIR_.$image->getExistingImgPath().".jpg";
             }
 
-            $prod = [
+            $prod = array(
                     'sku'           => $product['reference'],
                     'name'          => $product['name'],
                     'price'         => $product['price'],
                     'price_display' => $product['id_product'],
                     'qty'           =>  $product['cart_quantity'],
                     'image'         => $image_url
-                ];
+                );
             $data['products'][] = $prod;
         }
 
@@ -265,6 +276,9 @@ class SenderPrestashop extends Module
 
             $this->logDebug('Cart track request:' .
                         Tools::jsonEncode($cartData));
+
+            $this->logDebug('Cart track response: ' .
+                        Tools::jsonEncode($cartTrackResult));
         } elseif (empty($cartData['products']) && isset($cookie['id_cart'])) {
             $cartDeleteResult = $this->apiClient()->cartDelete($cookie['id_cart']);
             
@@ -387,7 +401,7 @@ class SenderPrestashop extends Module
         }
 
         // Filter out which fields to be taken
-        $recipient = [
+        $recipient = array(
             'email'      => $context['newCustomer']->email,
             'firstname'  => $context['newCustomer']->firstname,
             'lastname'   => $context['newCustomer']->lastname,
@@ -396,7 +410,7 @@ class SenderPrestashop extends Module
             'optin'      => $context['newCustomer']->optin,
             'newsletter' => $context['newCustomer']->newsletter,
             'gender'     => $context['newCustomer']->id_gender == 1 ? $this->l('Male') : $this->l('Female')
-        ];
+        );
 
         $listToAdd = Configuration::get('SPM_GUEST_LIST_ID');
 
@@ -476,10 +490,10 @@ class SenderPrestashop extends Module
             return;
         }
 
-        $options = [
+        $options = array(
             'showPushProject'   => false,
             'showForm'          => false
-        ];
+        );
 
         // Add push
         if (Configuration::get('SPM_ALLOW_PUSH')) {
@@ -515,7 +529,7 @@ class SenderPrestashop extends Module
     private function addTabs()
     {
         $langs = Language::getLanguages();
-        $id_lang = (int) Configuration::get('PS_LANG_DEFAULT');
+        
 
         $new_tab = new Tab();
         $new_tab->class_name = "AdminSenderPrestashop";
@@ -525,7 +539,6 @@ class SenderPrestashop extends Module
             $new_tab->name[$l['id_lang']] = $this->l('Sender.net Settings');
         }
         $new_tab->save();
-        $tab_id = $new_tab->id;
       
         return true;
     }
@@ -565,20 +578,12 @@ class SenderPrestashop extends Module
             $this->apiClient->setApiKey(Configuration::get('SPM_API_KEY'));
         }
 
-        // @todo add some clean up to disable module,
-        // delete api key
-        // set module as disabled
-        // or improve api Class that checks the key inside or
-        // something clever
-        //
-        // OR make sure to always check if module is enabled before making ANY
-        // interaction with api client!
+        // Check if key is valid
         if (!$this->apiClient->checkApiKey()) {
             $this->logDebug('apiClient(): checkApiKey failed.');
             $this->logDebug('Key used: ' . Configuration::get('SPM_API_KEY'));
 
             // Disable module
-            // DEBUG
             $this->disableModule();
 
             return $this->apiClient;

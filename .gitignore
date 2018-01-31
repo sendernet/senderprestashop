@@ -1,3 +1,4 @@
 sftp-config.json
 .phpintel
 /nbproject
+.DS_Store

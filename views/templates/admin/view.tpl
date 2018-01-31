@@ -1,15 +1,25 @@
+{*
+ * 2010-2018 Sender.net
+ *
+ * Sender.net Integration module for prestahop
+ *
+ * @author Sender.net <info@sender.net>
+ * @copyright 2010-2018 Sender.net
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License v. 3.0 (OSL-3.0)
+ * Sender.net
+ *}
 <script>
-var cartsAjaxurl = '{$cartsAjaxurl}';
-var formsAjaxurl = '{$formsAjaxurl}';
-var listsAjaxurl = '{$listsAjaxurl}';
-var pushAjaxurl = '{$pushAjaxurl}';
+var cartsAjaxurl = '{$cartsAjaxurl|escape:'htmlall':'UTF-8'}';
+var formsAjaxurl = '{$formsAjaxurl|escape:'htmlall':'UTF-8'}';
+var listsAjaxurl = '{$listsAjaxurl|escape:'htmlall':'UTF-8'}';
+var pushAjaxurl = '{$pushAjaxurl|escape:'htmlall':'UTF-8'}';
 </script>
 <div class="sender-prestashop-card">
     <div class="sender-prestashop-header">
         <div class="spm-text-left">
-            <img src="{$imageUrl}" alt="Sender Logo">
+            <img src="{$imageUrl|escape:'htmlall':'UTF-8'}" alt="Sender Logo">
             <span>
-                <small style="vertical-align: bottom;">v{$moduleVersion}</small>
+                <small style="vertical-align: bottom;">v{$moduleVersion|escape:'htmlall':'UTF-8'}</small>
             </span>
         </div>
     </div>
@@ -21,7 +31,7 @@ var pushAjaxurl = '{$pushAjaxurl}';
             <li class="tab-link" data-tab="spm-forms">
                 <a href="#!spm-forms"><i class="zmdi zmdi-format-list-bulleted"></i> Forms</a>
             </li>
-            <li class="tab-link" data-tab="spm-settings">
+            <li class="tab-link spm-current spm-active" data-tab="spm-settings">
                 <a href="#!spm-settings"><i class="zmdi zmdi-settings"></i> Settings</a>
             </li>
         </ul>
@@ -47,9 +57,9 @@ var pushAjaxurl = '{$pushAjaxurl}';
                     <div class="col-xs-12{if not $allowForms} hidden{/if}" id="forms_tab">
                         <div class="form-group">
                             <label for="swFormsSelect">Select form</label>
-                            <select id="swFormsSelect" name="swFormsSelect" value="{$formId}">
+                            <select id="swFormsSelect" name="swFormsSelect" value="{$formId|escape:'htmlall':'UTF-8'}">
                                 {foreach $formsList as $form}
-                                <option {if $form->id eq $formId}selected="selected"{/if} value="{$form->id}">{$form->title}</option>
+                                <option {if $form->id eq $formId}selected="selected"{/if} value="{$form->id|escape:'htmlall':'UTF-8'}">{$form->title|escape:'htmlall':'UTF-8'}</option>
                                 {/foreach}
                             </select>
                         </div>
@@ -82,14 +92,14 @@ var pushAjaxurl = '{$pushAjaxurl}';
                             When enabled, this feature shows your push project's subscribe icon on your website. You can manage the push campaigns in your Sender.net account’s dashboard.
                         </p>
                         <p>
-                            <a target="_BLANK" href="http://help.sender.net/section/push-notifications/">Getting started with push notifications</a> | <a target="_BLANK" href="{$baseUrl}/push_campaigns">Manage your push campaigns</a> | <a target="_BLANK" href="{$baseUrl}/push_projects/view">Customize push project</a>
+                            <a target="_BLANK" href="http://help.sender.net/section/push-notifications/">Getting started with push notifications</a> | <a target="_BLANK" href="{$baseUrl|escape:'htmlall':'UTF-8'}/push_campaigns">Manage your push campaigns</a> | <a target="_BLANK" href="{$baseUrl|escape:'htmlall':'UTF-8'}/push_projects/view">Customize push project</a>
                         </p>
                         {/if}
                     </blockquote>
                 </div>
             </div>
         </div>
-        <div id="spm-settings" class="spm-tab-content">
+        <div id="spm-settings" class="spm-tab-content spm-current">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="zmdi zmdi-notifications-active"></i> Plugin status is <span style="color:green;">ACTIVE</span>
@@ -100,9 +110,9 @@ var pushAjaxurl = '{$pushAjaxurl}';
                         Connected successfully
                         </h4>
                         <p>
-                            Your api key is: {$apiKey}
+                            Your api key is: {$apiKey|escape:'htmlall':'UTF-8'}
                         </p>
-                        <a href="{$disconnectUrl}" class="btn btn-lg btn-danger">{l s='Disconnect'}</a>
+                        <a href="{$disconnectUrl|escape:'htmlall':'UTF-8'}" class="btn btn-lg btn-danger">{l s='Disconnect' mod='senderprestashop'}</a>
                     </div>
                 </div>
             </div>
@@ -114,9 +124,9 @@ var pushAjaxurl = '{$pushAjaxurl}';
                     <div class="spm-details-settings">
                         <div class="form-group">
                             <label for="swGuestListSelect">Select list</label>
-                            <select id="swCustomerListSelect" value="{$formId}">
+                            <select id="swCustomerListSelect" value="{$formId|escape:'htmlall':'UTF-8'}">
                                 {foreach $customersLists as $customerList}
-                                <option {if $customerList->id eq $customerListId}selected="selected"{/if} value="{$customerList->id}">{$customerList->title}</option>
+                                <option {if $customerList->id eq $customerListId}selected="selected"{/if} value="{$customerList->id|escape:'htmlall':'UTF-8'}">{$customerList->title|escape:'htmlall':'UTF-8'}</option>
                                 {/foreach}
                             </select>
                         </div>
@@ -150,9 +160,9 @@ var pushAjaxurl = '{$pushAjaxurl}';
                     <div class="col-xs-12{if not $allowGuestCartTracking} hidden{/if}" id="guests_lists">
                         <div class="form-group">
                             <label for="swGuestListSelect">Select list</label>
-                            <select id="swGuestListSelect" name="swGuestListSelect" value="{$formId}">
+                            <select id="swGuestListSelect" name="swGuestListSelect" value="{$formId|escape:'htmlall':'UTF-8'}">
                                 {foreach $guestsLists as $guestsList}
-                                <option {if $guestsList->id eq $guestListId}selected="selected"{/if} value="{$guestsList->id}">{$guestsList->title}</option>
+                                <option {if $guestsList->id eq $guestListId}selected="selected"{/if} value="{$guestsList->id|escape:'htmlall':'UTF-8'}">{$guestsList->title|escape:'htmlall':'UTF-8'}</option>
                                 {/foreach}
                             </select>
                         </div>

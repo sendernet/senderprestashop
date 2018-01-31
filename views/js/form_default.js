@@ -1,3 +1,14 @@
+/**
+ * 2010-2018 Sender.net
+ *
+ * Sender.net Integration module for prestahop
+ *
+ * @author Sender.net <info@sender.net>
+ * @copyright 2010-2018 Sender.net
+ * @license https://opensource.org/licenses/osl-3.0.php Open Software License v. 3.0 (OSL-3.0)
+ * Sender.net
+ */
+
 (function($) {
 'use strict';
 
