@@ -28,7 +28,7 @@ class SenderPrestashop extends Module
      * Indicates whether module is in debug mode
      * @var bool
      */
-    private $debug = true;
+    private $debug = false;
 
     /**
      * Sender.net API client
@@ -139,14 +139,33 @@ class SenderPrestashop extends Module
      * Get subscribers from ps_newsletter table
      * and sync with sender
      *
-     * @return void
+     * @return string Status message
      */
     public function syncOldNewsletterSubscribers()
     {
-        $oldSubscribers = Db::getInstance()->ExecuteS('SELECT * FROM ' . _DB_PREFIX_ . 'newsletter');
+        $error = $this->l('We couldn\'t find any subscribers @newsletterblock module.');
+
+        if (!Configuration::get('SPM_IS_MODULE_ACTIVE')) {
+            return $error;
+        }
+
+        $oldSubscribers = array();
+
+        // We cannot be sure whether the table exists
+        try {
+            $oldSubscribers = Db::getInstance()->executeS('SELECT * FROM ' . _DB_PREFIX_ . 'newsletter');
+        } catch (PrestaShopDatabaseException $e) {
+            $this->logDebug('PDO Exception: '
+                . Tools::jsonEncode($e));
+            return $error;
+        }
 
         $this->logDebug('Syncing old newsletter subscribers');
         $this->logDebug('Selected list: ' . Configuration::get('SPM_GUEST_LIST_ID'));
+        
+        if (empty($oldSubscribers)) {
+            return $error;
+        }
 
         foreach ($oldSubscribers as $subscriber) {
             $this->apiClient()->addToList(array(
@@ -159,6 +178,7 @@ class SenderPrestashop extends Module
         }
 
         $this->logDebug('Sync finished.');
+        return $this->l('Successfully synced!');
     }
     
     /**
@@ -436,10 +456,11 @@ class SenderPrestashop extends Module
     }
 
     /**
-     * @todo Move to tpl maybe
+     * On this hook we setup product
+     * impor JSON for sender to get the data
      *
      * @param  array $params
-     * @return mixed void [when validation fails] | string [when adding import script]
+     * @return mixed string Smarty
      */
     public function hookDisplayFooterProduct($params)
     {
@@ -459,19 +480,19 @@ class SenderPrestashop extends Module
             $image_url = _PS_BASE_URL_._THEME_PROD_DIR_.$image->getExistingImgPath().".jpg";
         }
 
-        $importScript = '<script type="application/sender+json">
-                {
-                    "name":          "' . $params['product']->name . '",
-                    "image":         "' . $image_url . '",
-                    "description":   "' . $params['product']->description . '",
-                    "price":         "' . $params['product']->getPublicPrice() . '",
-                    "special_price": "' . $params['product']->getPublicPrice() . '",
-                    "currency":      "' . Currency::getCurrent()->iso_code . '",
-                    "quantity":      "' . $params['product']->quantity . '"
-                }
-            </script>';
+        $options = array(
+                    'name'          => $params['product']->name,
+                    "image"         => $image_url,
+                    "description"   => $params['product']->description,
+                    "price"         => $params['product']->getPublicPrice(),
+                    "special_price" => $params['product']->getPublicPrice(),
+                    "currency"      => Currency::getCurrent()->iso_code,
+                    "quantity"      => $params['product']->quantity
+                );
 
-        return $importScript;
+        $this->context->smarty->assign($options);
+
+        return $this->context->smarty->fetch($this->views_url . '/templates/front/product_import.tpl');
     }
 
     /**
