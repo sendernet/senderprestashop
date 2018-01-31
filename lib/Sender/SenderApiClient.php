@@ -9,30 +9,28 @@ if (!defined('_PS_VERSION_')) {
  * Sender.net Api Class
  * Handles communication with sender
  *
- * TODO:
- *     Now you must explicitly call setApiKey method
- *     on new ApiClient object to set which key to use
- *
- *     - Implement NULL api key check
  *
  *
  */
 class SenderApiClient
 {
 
-    public $version = '1.4';
+    public static $version = '1.4';
+    // public static $baseUrl = 'https://app.sender.net';
+    public static $baseUrl = 'http://sinergijait.lt/Vytautas/wipsistema';
+
+
     private $apiKey;
     private $apiEndpoint;
     private $commerceEndpoint;
-    private $baseUrl = 'https://app.sender.net';
     // Debug
     // private $baseUrl = 'http://sinergijait.lt/Vytautas/wipsistema';
 
     public function __construct($apiKey = null)
     {
         $this->apiKey = null;
-        $this->apiEndpoint = $this->baseUrl . '/api';
-        $this->commerceEndpoint = $this->baseUrl . '/commerce/v1';
+        $this->apiEndpoint = self::$baseUrl . '/api';
+        $this->commerceEndpoint = self::$baseUrl . '/commerce/v1';
 
         if ($apiKey) {
             $this->apiKey = $apiKey;
@@ -54,9 +52,9 @@ class SenderApiClient
      *
      * @return type
      */
-    public function getBaseUrl()
+    public static function getBaseUrl()
     {
-        return $this->baseUrl;
+        return self::$baseUrl;
     }
     
     /**
@@ -84,20 +82,14 @@ class SenderApiClient
      */
     public function checkApiKey()
     {
-        if (!$this->getApiKey()) { // No api key
+        // Try
+        $response = $this->ping();
+        
+        if (!isset($response->pong) || !$this->getApiKey()) { // Wrong api key
             return false;
         }
         
-        // Try
-        $response = $this->addToList('', '');
-        
-        if (isset($response->error->code)) { // Wrong api key
-            if ($response->error->code == 007) {
-                return false;
-            }
-        }
-        
-        return true;
+        return $response;
     }
 
     /**
@@ -108,16 +100,27 @@ class SenderApiClient
      */
     public static function generateAuthUrl($baseUrl, $returnUrl)
     {
-        $senderUrl = 'https://app.sender.net';
-
         $query = http_build_query(array(
             'return'        => $returnUrl . '&response_key=API_KEY',
-            'return_cancel' => $senderUrl,
+            'return_cancel' => self::$baseUrl,
             'store_baseurl' => $baseUrl,
             'store_currency' => 'EUR'
         ));
     
-        return $senderUrl . '/commerce/auth/?' . $query;
+        return self::$baseUrl . '/commerce/auth/?' . $query;
+    }
+
+    public function ping()
+    {
+        $data = array(
+            "method" => "ping",
+            "params" => array(
+                "api_key" => $this->apiKey,
+ 
+            )
+        );
+        
+        return $this->makeApiRequest($data);
     }
 
 

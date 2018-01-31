@@ -40,7 +40,7 @@ class AdminSenderPrestashopController extends ModuleAdminController
             $this->connect($senderApiKey);
         }
 
-        if (!$this->module->apiClient()) {
+        if (!$this->module->apiClient()->checkApiKey()) {
             // User is NOT authenticated
             return $this->renderAuth();
         } else {

@@ -12,16 +12,18 @@ class SenderPrestashopRecoverModuleFrontController extends ModuleFrontController
      */
     public function display()
     {
-        // Check if we can proceed
         if (!Configuration::get('SPM_IS_MODULE_ACTIVE')
-            || !Tools::getIsset('hash')
-            || !Validate::isLoadedObject($this->context->cookie)) {
+            || !Tools::getIsset('hash')) {
             Tools::redirect($this->context->link->getPageLink('index'));
+            $this->module->logDebug('Recover validation failed.');
             return;
         }
 
         // Here we retrieve the cart from Sender
         $cart = $this->module->apiClient()->cartGet(Tools::getValue('hash', 'NULL'));
+
+        $this->module->logDebug('Cart get by hash: ' . Tools::getValue('hash', 'NULL'));
+        $this->module->logDebug('Cart data: ' . Tools::jsonEncode($cart));
 
         if (!isset($cart->cart_id)) {
             Tools::redirect($this->context->link->getPageLink('index'));

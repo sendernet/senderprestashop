@@ -49,9 +49,13 @@ class SenderPrestashop extends Module
         $this->views_url = _PS_ROOT_DIR_ . '/' . basename(_PS_MODULE_DIR_) . '/' . $this->name . '/views';
         $this->module_url = __PS_BASE_URI__ . basename(_PS_MODULE_DIR_) . '/' . $this->name;
         $this->images_url = $this->module_url . '/views/img/';
-        
-        // $this->apiClient = new SenderApiClient(Configuration::get('SPM_API_KEY'));
 
+        $this->apiClient = new SenderApiClient(Configuration::get('SPM_API_KEY'));
+
+        if (!$this->apiClient->checkApiKey()) {
+            $this->warning = $this->l('Module is not connected. Click to authenticate.');
+        }
+        
         parent::__construct();
 
         $this->displayName = $this->l('Sender.net Integration');
@@ -74,9 +78,9 @@ class SenderPrestashop extends Module
         ];
     }
     
-
     /**
      * Handle module installation
+     *
      * @return bool
      */
     public function install()
@@ -111,17 +115,45 @@ class SenderPrestashop extends Module
 
     /**
      * [hookdisplayHeader description]
+     *
      * @param  [type] $context [description]
      * @return [type]          [description]
      */
     public function hookdisplayHeader($context)
     {
-        // Print all the things
-        // ppp($context['cart']);
+
+
+    }
+
+    /**
+     * Get subscribers from ps_newsletter table
+     * and sync with sender
+     *
+     * @return void
+     */
+    public function syncOldNewsletterSubscribers()
+    {
+        $oldSubscribers = Db::getInstance()->ExecuteS('SELECT * FROM ' . _DB_PREFIX_ . 'newsletter');
+
+        $this->logDebug('Syncing old newsletter subscribers');
+        $this->logDebug('Selected list: ' . Configuration::get('SPM_GUEST_LIST_ID'));
+
+        foreach ($oldSubscribers as $subscriber) {
+            $this->apiClient()->addToList([
+                'email'   => $subscriber['email'],
+                'created' => $subscriber['newsletter_date_add'],
+                'active'  => $subscriber['active'],
+                'source'  => $this->l('Newsletter')
+            ], Configuration::get('SPM_GUEST_LIST_ID'));
+            $this->logDebug('Added: ' . $subscriber['email']);
+        }
+
+        $this->logDebug('Sync finished.');
     }
     
     /**
      * Handle uninstall
+     *
      * @return bool
      */
     public function uninstall()
@@ -148,6 +180,7 @@ class SenderPrestashop extends Module
 
     /**
      * Add tab css to the BackOffice
+     *
      * @return void
      */
     public function hookDisplayBackOfficeHeader()
@@ -175,7 +208,6 @@ class SenderPrestashop extends Module
      * generate cart array for Sender api call
      * It also retrieves products with images
      *
-     * @todo  Set currency
      * @param  object $cart
      * @param  string $email
      * @return array
@@ -183,12 +215,15 @@ class SenderPrestashop extends Module
     private function mapCartData($cart, $email)
     {
         $data = [
-            "email" => $email,
+            "email"       => $email,
             "external_id" => $cart->id,
-            "url" => $this->context->link->getModuleLink('senderprestashop', 'recover') . '&hash={$cart_hash}',
-            "currency" => 'EUR',
+            "url"         => $this->context->link->getModuleLink(
+                'senderprestashop',
+                'recover'
+            ) . '&hash={$cart_hash}',
+            "currency"    => Currency::getCurrent()->iso_code,
             "grand_total" =>  $cart->getTotalCart($cart->id),
-            "products" => []
+            "products"    => []
         ];
 
         $products = $cart->getProducts();
@@ -201,17 +236,42 @@ class SenderPrestashop extends Module
             }
 
             $prod = [
-                    'sku' => $product['reference'],
-                    'name' => $product['name'],
-                    'price' => $product['price'],
+                    'sku'           => $product['reference'],
+                    'name'          => $product['name'],
+                    'price'         => $product['price'],
                     'price_display' => $product['id_product'],
-                    'qty' =>  $product['cart_quantity'],
-                    'image' => $image_url
+                    'qty'           =>  $product['cart_quantity'],
+                    'image'         => $image_url
                 ];
             $data['products'][] = $prod;
         }
 
         return $data;
+    }
+
+    /**
+     * Sync current cart with sender cart track
+     *
+     * @param  object $cart   prestashop Cart
+     * @param  array $cookie
+     * @return void
+     */
+    public function syncCart($cart, $cookie)
+    {
+        // Generate cart data array for api call
+        $cartData = $this->mapCartData($cart, $cookie['email']);
+        
+        if (!empty($cartData['products'])) {
+            $cartTrackResult = $this->apiClient()->cartTrack($cartData);
+
+            $this->logDebug('Cart track request:' .
+                        Tools::jsonEncode($cartData));
+        } elseif (empty($cartData['products']) && isset($cookie['id_cart'])) {
+            $cartDeleteResult = $this->apiClient()->cartDelete($cookie['id_cart']);
+            
+            $this->logDebug('Cart delete response:'
+                . Tools::jsonEncode($cartDeleteResult));
+        }
     }
 
     /**
@@ -238,44 +298,7 @@ class SenderPrestashop extends Module
 
         $this->logDebug('#hookActionCartSummary START');
 
-        // Generate cart data array for api call
-        $cartData = $this->mapCartData($context['cart'], $cookie['email']);
-        
-        if (!empty($cartData['products'])) {
-            if ($cookie['is_guest']) {
-                // Filter out which fields to be taken
-                $recipient = [
-                    'email'      => $cookie['email'],
-                    'firstname'  => $cookie['customer_firstname'],
-                    'lastname'   => $cookie['customer_lastname'],
-                    'created'    => $cookie['date_add'],
-                ];
-
-                $addTolistResult = $this->apiClient()->addToList(
-                    $recipient,
-                    Configuration::get('SPM_GUEST_LIST_ID')
-                );
-
-                $this->logDebug('Add this guest customer: ' .
-                    Tools::jsonEncode($recipient));
-
-                $this->logDebug('Add to list response:' .
-                        Tools::jsonEncode($addTolistResult));
-            }
-
-            $cartTrackResult = $this->apiClient()->cartTrack($cartData);
-
-            $this->logDebug('Cart track request:' .
-                        Tools::jsonEncode($cartData));
-
-            $this->logDebug('Cart track response:' .
-                        Tools::jsonEncode($cartTrackResult));
-        } elseif (empty($cartData['products'])) {
-            $cartDeleteResult = $this->apiClient()->cartDelete($cookie['id_cart']);
-            
-            $this->logDebug('Cart delete response:'
-                . Tools::jsonEncode($cartDeleteResult));
-        }
+        $this->syncCart($context['cart'], $cookie);
 
         $this->logDebug('#hookActionCartSummary END');
 
@@ -303,20 +326,7 @@ class SenderPrestashop extends Module
 
         $this->logDebug('#hookActionCartSave START');
 
-        // Generate cart data array for api call
-        $cartData = $this->mapCartData($context['cart'], $cookie['email']);
-        
-        if (!empty($cartData['products'])) {
-            $cartTrackResult = $this->apiClient()->cartTrack($cartData);
-
-            $this->logDebug('Cart track request:' .
-                        Tools::jsonEncode($cartData));
-        } elseif (empty($cartData['products']) && isset($cookie['id_cart'])) {
-            $cartDeleteResult = $this->apiClient()->cartDelete($cookie['id_cart']);
-            
-            $this->logDebug('Cart delete response:'
-                . Tools::jsonEncode($cartDeleteResult));
-        }
+        $this->syncCart($context['cart'], $cookie);
 
         $this->logDebug('#hookActionCartSave END');
     }
@@ -360,10 +370,10 @@ class SenderPrestashop extends Module
      */
     public function hookactionCustomerAccountAdd($context)
     {
-
         // Validate if we should
         if (!Validate::isLoadedObject($context['newCustomer'])
-            || !Configuration::get('SPM_ALLOW_TRACK_NEW_SIGNUPS')
+            || (!Configuration::get('SPM_ALLOW_TRACK_NEW_SIGNUPS')
+                && !Configuration::get('SPM_ALLOW_GUEST_TRACK'))
             || !Configuration::get('SPM_IS_MODULE_ACTIVE')) {
             return $context;
         }
@@ -389,9 +399,18 @@ class SenderPrestashop extends Module
             'gender'     => $context['newCustomer']->id_gender == 1 ? $this->l('Male') : $this->l('Female')
         ];
 
+        $listToAdd = Configuration::get('SPM_GUEST_LIST_ID');
+
+        if ($context['newCustomer']->is_guest) {
+            $this->logDebug('Adding to guest list: ' . $listToAdd);
+            $listToAdd = Configuration::get('SPM_GUEST_LIST_ID');
+        } else {
+            $this->logDebug('Adding to customers list: ' . $listToAdd);
+        }
+
         $addTolistResult = $this->apiClient()->addToList(
             $recipient,
-            Configuration::get('SPM_CUSTOMERS_LIST_ID')
+            $listToAdd
         );
 
         $this->logDebug('Add this recipient: ' .
@@ -404,8 +423,7 @@ class SenderPrestashop extends Module
     }
 
     /**
-     * @todo Make it work. (works only if you change & symbol to %26 in product import wizard)
-     *       Add if to validate
+     * @todo Move to tpl maybe
      *
      * @param  array $params
      * @return mixed void [when validation fails] | string [when adding import script]
@@ -430,13 +448,13 @@ class SenderPrestashop extends Module
 
         $importScript = '<script type="application/sender+json">
                 {
-                    "name": "' . $params['product']->name . '",
-                    "image": "' . $image_url . '",
-                    "description": "' . $params['product']->description . '",
-                    "price": "' . $params['product']->getPublicPrice() . '",
+                    "name":          "' . $params['product']->name . '",
+                    "image":         "' . $image_url . '",
+                    "description":   "' . $params['product']->description . '",
+                    "price":         "' . $params['product']->getPublicPrice() . '",
                     "special_price": "' . $params['product']->getPublicPrice() . '",
-                    "currency": "EUR",
-                    "quantity": "' . $params['product']->quantity . '"
+                    "currency":      "' . Currency::getCurrent()->iso_code . '",
+                    "quantity":      "' . $params['product']->quantity . '"
                 }
             </script>';
 
@@ -444,32 +462,44 @@ class SenderPrestashop extends Module
     }
 
     /**
-     * [hookDisplayHome description]
-     * @param  [type] $params [description]
-     * @return [type]         [description]
+     * On this hook we setup our form and
+     * push project
+     *
+     * @param   $params array
+     * @return string Smarty template
      */
     public function hookDisplayHome($params)
     {
         // Check if we should
         if (!Configuration::get('SPM_IS_MODULE_ACTIVE')
-            || !Configuration::get('SPM_ALLOW_PUSH')) {
+            || (!Configuration::get('SPM_ALLOW_FORMS')
+                && !Configuration::get('SPM_ALLOW_PUSH'))) {
             return;
         }
 
-        $formScript = str_replace('https://', 'http://', '<script type="text/javascript" src="' . $this->apiClient()->getFormById(748)->script_url . '"></script>');
+        $options = [
+            'showPushProject'   => false,
+            'showForm'          => false
+        ];
 
-        $pushScript = '<script type="text/javascript">
-                (function(p,u,s,h){
-                    p._spq=p._spq||[];
-                    p._spq.push([\'_currentTime\',Date.now()]);
-                    s=u.createElement(\'script\');
-                    s.type=\'text/javascript\';
-                    s.async=true;
-                    s.src="' . str_replace("https://", "https://", $this->apiClient()->getPushProject()) . '";
-                    h=u.getElementsByTagName(\'script\')[0];
-                    h.parentNode.insertBefore(s,h);
-                })(window,document);</script>';
-        return $pushScript . $formScript;
+        // Add push
+        if (Configuration::get('SPM_ALLOW_PUSH')) {
+            $options['pushProject']     = $this->apiClient()->getPushProject();
+            $options['showPushProject'] = true;
+        }
+
+        // Retrieve the form
+        $form = $this->apiClient()->getFormById(Configuration::get('SPM_FORM_ID'));
+
+        // Add forms
+        if (Configuration::get('SPM_ALLOW_FORMS')) {
+            $options['formUrl']  = isset($form->script_url) ? $form->script_url : '';
+            $options['showForm'] = true;
+        }
+
+        $this->context->smarty->assign($options);
+
+        return $this->context->smarty->fetch($this->views_url . '/templates/front/form.tpl');
     }
 
     /**
@@ -514,9 +544,10 @@ class SenderPrestashop extends Module
                 $this->debugLogger = new FileLogger(0);
                 $this->debugLogger->setFilename(_PS_ROOT_DIR_.'/log/sender_prestashop_logs_'.date('Ymd').'.log');
             }
-            $this->debugLogger->logDebug(' ');
-            $this->debugLogger->logDebug($message);
-            $this->debugLogger->logDebug(' ');
+            $this->debugLogger->logDebug('
+
+                    ' . $message .' 
+            ');
         }
     }
 
@@ -529,7 +560,7 @@ class SenderPrestashop extends Module
      */
     public function apiClient()
     {
-        // Generate new instance if there is none
+        // Create new instance if there is none
         if (!$this->apiClient) {
             $this->apiClient = new SenderApiClient();
             $this->apiClient->setApiKey(Configuration::get('SPM_API_KEY'));
@@ -551,7 +582,7 @@ class SenderPrestashop extends Module
             // DEBUG
             $this->disableModule();
 
-            return false;
+            return $this->apiClient;
         }
 
         return $this->apiClient;
