@@ -21,9 +21,10 @@ class AdminSenderPrestashopController extends ModuleAdminController
         parent::__construct();
     }
 
-    public function initToolbar()
+    // Do not init Header
+    public function initPageHeaderToolbar()
     {
-        parent::initToolbar();
+        return true;
     }
 
     /**
@@ -63,7 +64,6 @@ class AdminSenderPrestashopController extends ModuleAdminController
      */
     public function renderAuth()
     {
-        $output = '';
         $authUrl = SenderApiClient::generateAuthUrl(
             $this->context->shop->getBaseUrl(),
             $this->context->shop->getBaseUrl()
@@ -72,30 +72,16 @@ class AdminSenderPrestashopController extends ModuleAdminController
                 . $this->context->link->getAdminLink('AdminSenderPrestashop')
         );
 
-        $output .= '
-            <div class="row well">
-                <div class="col-xs-12">
-                    <img src="' . $this->module->getPathUri() . 'views/img/sender_logo.png" alt="Sender Logo" />
-                    <span><small style="vertical-align:bottom;">v' . $this->module->version . '</small></span>
-                    <hr>
-                </div>
-                <div class="col-xs-12">
-                    <h4>
-                        ' . $this->l('Sender.net integration authentication') . '
-                    </h4>
-                    <p>
-                        ' . $this->l('First you must authenticate yourself with sender.net,
-                         click authenticate to enter your credentials') . '
-                    </p>
-                </div>
-                <div class="col-xs-12">
-                    <a href="' . $authUrl . '" class="btn" style="background-color: #009587; color: #fff;">
-                    ' . $this->l('Authenticate') . '
-                    </a>
-                </div>
-            </div>
-        ';
-        return $output;
+        $options = array(
+            'authUrl'       => $authUrl,
+            'moduleVersion' => $this->module->version,
+            'imageUrl'      => $this->module->getPathUri() . 'views/img/sender_logo.png',
+            'baseUrl'       => $this->module->apiClient()->getBaseUrl(),
+        );
+
+        $this->context->smarty->assign($options);
+
+        return $this->context->smarty->fetch($this->module->views_url . '/templates/admin/auth.tpl');
     }
 
     /**
@@ -125,38 +111,34 @@ class AdminSenderPrestashopController extends ModuleAdminController
         if ($this->isJson($pushProject)) {
             $pushProject = false;
         }
-        
-        $this->context->smarty->assign(array(
-            'imageUrl' => $this->module->getPathUri() . 'views/img/sender_logo.png',
-            'apiKey' => $this->module->apiClient()->getApiKey(),
-            'disconnectUrl' => $disconnectUrl,
-            'baseUrl' => $this->module->apiClient()->getBaseUrl(),
-            'moduleVersion' => $this->module->version,
-            'formsList' => $this->module->apiClient()->getAllForms(),
-            'guestsLists' => $this->module->apiClient()->getAllLists(),
-            'customersLists' => $this->module->apiClient()->getAllLists(),
-            'allowForms' => Configuration::get('SPM_ALLOW_FORMS'),
-            'allowGuestCartTracking' => Configuration::get('SPM_ALLOW_GUEST_TRACK'),
-            'allowCartTracking' => Configuration::get('SPM_ALLOW_TRACK_CARTS'),
-            'allowPush' => Configuration::get('SPM_ALLOW_PUSH'),
 
-            'cartsAjaxurl' => $this->module->module_url
+        $this->context->smarty->assign(array(
+            'imageUrl'               => $this->module->getPathUri() . 'views/img/sender_logo.png',
+            'connectedUser'          => $this->module->apiClient()->ping(),
+            'disconnectUrl'          => $disconnectUrl,
+            'baseUrl'                => $this->module->apiClient()->getBaseUrl(),
+            'moduleVersion'          => $this->module->version,
+            'formsList'              => $this->module->apiClient()->getAllForms(),
+            'guestsLists'            => $this->module->apiClient()->getAllLists(),
+            'customersLists'         => $this->module->apiClient()->getAllLists(),
+            'allowCartTrack'         => Configuration::get('SPM_ALLOW_TRACK_CARTS'),
+            'allowForms'             => Configuration::get('SPM_ALLOW_FORMS'),
+            'allowGuestCartTracking' => Configuration::get('SPM_ALLOW_GUEST_TRACK'),
+            'allowCartTracking'      => Configuration::get('SPM_ALLOW_TRACK_CARTS'),
+            'allowPush'              => Configuration::get('SPM_ALLOW_PUSH'),
+            'cartsAjaxurl'           => $this->module->module_url
                                         . '/ajax/carts_ajax.php?token='
                                         . Tools::getAdminToken($this->module->name),
-
-            'formsAjaxurl' => $this->module->module_url . '/ajax/forms_ajax.php?token='
+            'formsAjaxurl'           => $this->module->module_url . '/ajax/forms_ajax.php?token='
                                         . Tools::getAdminToken($this->module->name),
-
-            'listsAjaxurl' => $this->module->module_url . '/ajax/lists_ajax.php?token='
+            'listsAjaxurl'           => $this->module->module_url . '/ajax/lists_ajax.php?token='
                                         . Tools::getAdminToken($this->module->name),
-
-            'pushAjaxurl' => $this->module->module_url . '/ajax/push_ajax.php?token='
+            'pushAjaxurl'            => $this->module->module_url . '/ajax/push_ajax.php?token='
                                         . Tools::getAdminToken($this->module->name),
-                                        
-            'formId' => Configuration::get('SPM_FORM_ID'),
-            'guestListId' => Configuration::get('SPM_GUEST_LIST_ID'),
-            'customerListId' => Configuration::get('SPM_CUSTOMERS_LIST_ID'),
-            'pushProject' => $pushProject,
+            'formId'                 => Configuration::get('SPM_FORM_ID'),
+            'guestListId'            => Configuration::get('SPM_GUEST_LIST_ID'),
+            'customerListId'         => Configuration::get('SPM_CUSTOMERS_LIST_ID'),
+            'pushProject'            => $pushProject,
         ));
 
         $output .= $this->context->smarty->fetch($this->module->views_url . '/templates/admin/view.tpl');

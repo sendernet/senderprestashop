@@ -1,6 +1,10 @@
 
 /* -- Additional sender styles -------------- */
 
+#content.bootstrap {
+    padding: 10px 10px 0 !important;
+}
+
 .lc-block,
 .sender-prestashop-button {
     display: inline-block;
@@ -54,7 +58,7 @@
     padding: 20px;
     background: #fff;
     border-radius: 2px;
-    margin: 15px 15px 15px 0
+    margin: 0px 15px 15px 0
 }
 
 .sender-prestashop-card {
@@ -79,6 +83,7 @@
 }
 
 .sender-prestashop-menu {
+    margin-top: 15px;
     padding-right: 15px !important;
     padding-left: 0px !important
 }

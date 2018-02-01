@@ -136,14 +136,16 @@ class SenderPrestashop extends Module
     }
 
     /**
+     * @todo  Optimize for huge lists
+     *
      * Get subscribers from ps_newsletter table
      * and sync with sender
      *
      * @return string Status message
      */
-    public function syncOldNewsletterSubscribers()
+    public function syncOldNewsletterSubscribers($listId)
     {
-        $error = $this->l('We couldn\'t find any subscribers @newsletterblock module.');
+        $error = $this->l("We couldn't find any subscribers @newsletterblock module.");
 
         if (!Configuration::get('SPM_IS_MODULE_ACTIVE')) {
             return $error;
@@ -154,6 +156,10 @@ class SenderPrestashop extends Module
         // We cannot be sure whether the table exists
         try {
             $oldSubscribers = Db::getInstance()->executeS('SELECT * FROM ' . _DB_PREFIX_ . 'newsletter');
+            $oldCustomers = Db::getInstance()->executeS('
+                SELECT email, firstname, lastname, date_add, newsletter, optin 
+                FROM ' . _DB_PREFIX_ . 'customer 
+                WHERE newsletter = 1 OR optin = 1');
         } catch (PrestaShopDatabaseException $e) {
             $this->logDebug('PDO Exception: '
                 . Tools::jsonEncode($e));
@@ -161,7 +167,7 @@ class SenderPrestashop extends Module
         }
 
         $this->logDebug('Syncing old newsletter subscribers');
-        $this->logDebug('Selected list: ' . Configuration::get('SPM_GUEST_LIST_ID'));
+        $this->logDebug('Selected list: ' . $listId);
         
         if (empty($oldSubscribers)) {
             return $error;
@@ -173,8 +179,20 @@ class SenderPrestashop extends Module
                 'created' => $subscriber['newsletter_date_add'],
                 'active'  => $subscriber['active'],
                 'source'  => $this->l('Newsletter')
-            ), Configuration::get('SPM_GUEST_LIST_ID'));
-            $this->logDebug('Added: ' . $subscriber['email']);
+            ), $listId);
+            $this->logDebug('Added newsletter subscriber: ' . $subscriber['email']);
+        }
+
+        foreach ($oldCustomers as $subscriber) {
+            $this->apiClient()->addToList(array(
+                'email'     => $subscriber['email'],
+                'firstname' => $subscriber['firstname'],
+                'lastname'  => $subscriber['lastname'],
+                'created'   => $subscriber['date_add'],
+                'active'    => 1,
+                'source'    => $this->l('Customer')
+            ), $listId);
+            $this->logDebug('Added newsletter subscriber: ' . $subscriber['email']);
         }
 
         $this->logDebug('Sync finished.');

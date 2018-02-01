@@ -14,20 +14,36 @@
 
     jQuery(document).ready(function() {
 
+        jQuery('#swToggleCartTrack').on('click', function(event) {
 
-        var senderForm = jQuery('#sender-subscribe');
+            jQuery('#swToggleCartTrack').text('Saving...');
+            jQuery('#swToggleCartTrack').attr('disabled', true);
 
-        if (senderForm.length > 0) {
-            senderForm.find('button').on('click', function(event) {
-                if (senderForm.find('#email').val().length > 1) {
-                    console.log(senderForm.find('#email').val());
-                    console.log(senderForm.find('#firstname').val());
-                    console.log(senderForm.find('#lastname').val());
+            jQuery.post(cartsAjaxurl, { action: 'saveAllowCartTracking' }, function(response) {
+                var proceed = jQuery.parseJSON(response);
+
+                if (!proceed.result) {
+                    jQuery('#swToggleCartTrackTitle').text('disabled');
+                    jQuery('#swToggleCartTrackTitle').css('color', 'red');
+                    jQuery('#swToggleCartTrack').text('Enable');
+                    jQuery('#swToggleCartTrack').removeClass('btn-danger');
+                    jQuery('#swToggleCartTrack').addClass('btn-success');
+                    jQuery('#swCustomerListSelectContainer').fadeOut();
+
+                } else {
+                    jQuery('#swToggleCartTrackTitle').text('enabled');
+                    jQuery('#swToggleCartTrackTitle').css('color', 'green');
+                    jQuery('#swToggleCartTrack').text('Disable');
+                    jQuery('#swToggleCartTrack').removeClass('btn-success');
+                    jQuery('#swToggleCartTrack').addClass('btn-danger');
+                    jQuery('#swCustomerListSelectContainer').fadeIn();
                 }
+
+                jQuery('#swToggleCartTrack').removeAttr('disabled');
+
             });
-        }
 
-
+        });
 
         jQuery('#swToggleWidget').on('click', function(event) {
 
@@ -73,14 +89,14 @@
                     jQuery('#swToggleGuestCartTracking').text('Enable');
                     jQuery('#swToggleGuestCartTracking').removeClass('btn-danger');
                     jQuery('#swToggleGuestCartTracking').addClass('btn-success');
-                    $('#guests_lists').addClass('hidden');
+                    jQuery('#guests_lists').fadeOut();
                 } else {
                     jQuery('#swToggleGuestCartTrackingTitle').text('enabled');
                     jQuery('#swToggleGuestCartTrackingTitle').css('color', 'green');
                     jQuery('#swToggleGuestCartTracking').text('Disable');
                     jQuery('#swToggleGuestCartTracking').removeClass('btn-success');
                     jQuery('#swToggleGuestCartTracking').addClass('btn-danger');
-                    $('#guests_lists').removeClass('hidden');
+                    jQuery('#guests_lists').fadeIn();
                 }
 
                 jQuery('#swToggleGuestCartTracking').removeAttr('disabled');
