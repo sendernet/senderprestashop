@@ -97,7 +97,7 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="zmdi zmdi-format-list-bulleted"></i> 
-                    {l s='Form widget information'}
+                    {l s='Form widget information' mod='senderprestashop'}
                 </div>
                 <div class="panel-body">
                     <div class="alert alert-warning">
@@ -166,6 +166,7 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                 </div>
             </div>
             {/if}
+
         </div>
 
         {* PUSH Settings tab *}
@@ -210,7 +211,7 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                                 <i class="zmdi zmdi-alert-circle-o"></i> 
                                 {l s='You don’t have a push project configured' mod='senderprestashop'}
                             </h3>
-                            <a class="sender-prestashop-button" target="_BLANK" href="{$baseUrl}/push_projects/create">
+                            <a class="sender-prestashop-button" target="_BLANK" href="{$baseUrl|escape:'htmlall':'UTF-8'}/push_projects/create">
                                 {l s='Create a new push project' mod='senderprestashop'}
                             </a> 
                         {else}
@@ -237,6 +238,136 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
         {* CART TRACKING Tab *}
         <div id="spm-carts" class="spm-tab-content">
 
+            {* ALLOW CART TRACK *}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="zmdi zmdi-shopping-cart"></i> 
+                    {l s='Customer cart tracking is' mod='senderprestashop'}
+                    {if not $allowCartTrack}
+                        <span id="swToggleCartTrackTitle" style="color:red;">
+                            {l s='disabled' mod='senderprestashop'}
+                        </span>
+                    {else}
+                        <span id="swToggleCartTrackTitle" style="color:green;">
+                            {l s='enabled' mod='senderprestashop'}
+                        </span>
+                    {/if}
+                </div>
+                <div class="panel-body">
+                    
+                    <div class="spm-details-settings">
+                        <button id="swToggleCartTrack" class="btn btn-lg {if not $allowCartTrack}btn-success{else}btn-danger{/if}">
+                        {if not $allowCartTrack}
+                            {l s='Enable' mod='senderprestashop'}
+                        {else}
+                            {l s='Disable' mod='senderprestashop'}
+                        {/if}
+                        </button>
+                    </div>
+                    <blockquote>
+                        <p>
+                            {l s='If this feature is enabled - logged in customers cart will be tracked.' mod='senderprestashop'}
+                        </p>
+                    </blockquote>
+                </div>
+            </div>
+
+            {* SELECT CUSTOMERS LIST *}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="zmdi zmdi-shopping-cart"></i> 
+                    {l s='Customer list' mod='senderprestashop'}
+                </div>
+                <div class="panel-body">
+                    {if empty($customersLists)}
+                    <div class="alert alert-warning">
+                        {l s='To track customers carts you must have at least one list at your Sender.net`s account' mod='senderprestashop'}
+                    </div>
+                    <p>
+                        <a class="btn btn-lg btn-info" href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists/add">
+                            {l s='Create a new list' mod='senderprestashop'}
+                        </a>
+                    </p>
+                    {else}
+                    <blockquote>
+                            <p>
+                                {l s='Select to which list save new signups and customers whose carts were tracked' mod='senderprestashop'}
+                            </p>
+                            <p>
+                                <a href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists">
+                                    {l s='Manage lists' mod='senderprestashop'}
+                                </a>
+                            </p>
+                        </blockquote>
+                        <div id="swCustomerListSelectContainer" class="form-group">
+                            <label for="swCustomerListSelect">
+                                {l s='Select list' mod='senderprestashop'}
+                            </label>
+                            <select id="swCustomerListSelect" value="{$formId|escape:'htmlall':'UTF-8'}">
+                                <option value="0">
+                                    {l s='Select a list' mod='senderprestashop'}
+                                </option>
+                                {foreach $customersLists as $customerList}
+                                <option {if $customerList->id eq $customerListId}selected="selected"{/if} value="{$customerList->id|escape:'htmlall':'UTF-8'}">
+                                    {$customerList->title|escape:'htmlall':'UTF-8'}
+                                </option>
+                                {/foreach}
+                            </select>
+                        </div>
+                    {/if}
+                </div>
+            </div>
+
+            {* NEW SIGNUP PANEL *}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="zmdi zmdi-shopping-cart"></i> 
+                    {l s='Track new signups is:' mod='senderprestashop'}
+                    {if not $allowNewSignups}
+                        <span id="swToggleNewSignupsTitle" style="color:red;">
+                            {l s='disabled' mod='senderprestashop'}
+                        </span>
+                    {else}
+                        <span id="swToggleNewSignupsTitle" style="color:green;">
+                            {l s='enabled' mod='senderprestashop'}
+                        </span>
+                    {/if}
+                </div>
+                <div class="panel-body">
+                    {if empty($customersLists)}
+                    <div class="alert alert-warning">
+                        {l s='To track new signups you must have at least one list at your Sender.net`s account' mod='senderprestashop'}
+                    </div>
+                    <p>
+                        <a class="btn btn-lg btn-info" href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists/add">
+                            {l s='Create a new list' mod='senderprestashop'}
+                        </a>
+                    </p>
+                    {else}
+                    <div class="spm-details-settings">
+                        <button id="swToggleNewSignups" class="btn btn-lg {if not $allowNewSignups}btn-success{else}btn-danger{/if}">
+                        {if not $allowNewSignups}
+                            {l s='Enable' mod='senderprestashop'}
+                        {else}
+                            {l s='Disable' mod='senderprestashop'}
+                        {/if}
+                        </button>
+                    </div>
+                    <blockquote>
+                        <p>
+                            {l s='If this feature is enabled - all new customers who signs up will be added to the selected customer list.' mod='senderprestashop'}
+                        </p>
+                        <p>
+                            <a href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists">
+                                {l s='Manage lists' mod='senderprestashop'}
+                            </a>
+                        </p>
+                    </blockquote>
+                    {/if}
+                </div>
+            </div>
+
+            {* ALLOW GUEST TRACKING PANEL *}
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="zmdi zmdi-shopping-cart"></i> 
@@ -302,68 +433,6 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                 </div>
             </div>
 
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <i class="zmdi zmdi-shopping-cart"></i> 
-                    {l s='Customer cart tracking is' mod='senderprestashop'}
-                    {if not $allowCartTrack}
-                        <span id="swToggleCartTrackTitle" style="color:red;">
-                            {l s='disabled' mod='senderprestashop'}
-                        </span>
-                    {else}
-                        <span id="swToggleCartTrackTitle" style="color:green;">
-                            {l s='enabled' mod='senderprestashop'}
-                        </span>
-                    {/if}
-                </div>
-                <div class="panel-body">
-                    {if empty($customersLists)}
-                    <div class="alert alert-warning">
-                        {l s='To track customers carts you must have at least one list at your Sender.net`s account' mod='senderprestashop'}
-                    </div>
-                    <p>
-                        <a class="btn btn-lg btn-info" href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists/add">
-                            {l s='Create a new list' mod='senderprestashop'}
-                        </a>
-                    </p>
-                    {else}
-                    <div class="spm-details-settings">
-                        <button id="swToggleCartTrack" class="btn btn-lg {if not $allowCartTrack}btn-success{else}btn-danger{/if}">
-                        {if not $allowCartTrack}
-                            {l s='Enable' mod='senderprestashop'}
-                        {else}
-                            {l s='Disable' mod='senderprestashop'}
-                        {/if}
-                        </button>
-                    </div>
-                    <blockquote>
-                            <p>
-                                {l s='Please select a list to add your customers to' mod='senderprestashop'}
-                            </p>
-                            <p>
-                                <a href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists">
-                                    {l s='Manage lists' mod='senderprestashop'}
-                                </a>
-                            </p>
-                        </blockquote>
-                        <div id="swCustomerListSelectContainer" class="form-group" {if not $allowCartTrack}hidden{/if}>
-                            <label for="swGuestListSelect">
-                                {l s='Select list' mod='senderprestashop'}
-                            </label>
-                            <select id="swCustomerListSelect" value="{$formId|escape:'htmlall':'UTF-8'}">
-                                <option value="0">
-                                    {l s='Select a list' mod='senderprestashop'}
-                                </option>
-                                {foreach $customersLists as $customerList}
-                                <option {if $customerList->id eq $customerListId}selected="selected"{/if} value="{$customerList->id|escape:'htmlall':'UTF-8'}">
-                                    {$customerList->title|escape:'htmlall':'UTF-8'}
-                                </option>
-                                {/foreach}
-                            </select>
-                        </div>
-                    {/if}
-                </div>
-            </div>
         </div>
     </div>
 </div>

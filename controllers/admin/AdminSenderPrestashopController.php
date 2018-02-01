@@ -121,6 +121,7 @@ class AdminSenderPrestashopController extends ModuleAdminController
             'formsList'              => $this->module->apiClient()->getAllForms(),
             'guestsLists'            => $this->module->apiClient()->getAllLists(),
             'customersLists'         => $this->module->apiClient()->getAllLists(),
+            'allowNewSignups'        => Configuration::get('SPM_ALLOW_TRACK_NEW_SIGNUPS'),
             'allowCartTrack'         => Configuration::get('SPM_ALLOW_TRACK_CARTS'),
             'allowForms'             => Configuration::get('SPM_ALLOW_FORMS'),
             'allowGuestCartTracking' => Configuration::get('SPM_ALLOW_GUEST_TRACK'),

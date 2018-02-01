@@ -14,6 +14,51 @@
 
     jQuery(document).ready(function() {
 
+        jQuery('#swToggleNewSignups').on('click', function(event) {
+
+            var newSignupButton = jQuery('#swToggleNewSignups');
+            var statusTitle     = jQuery('#swToggleNewSignupsTitle');
+            var selectContainer = jQuery('#swNewSignupListContainer');
+
+            newSignupButton.text('Saving...');
+            newSignupButton.attr('disabled', true);
+
+            jQuery.post(listsAjaxurl, { action: 'saveALlowNewSignups' }, function(response) {
+                var proceed = jQuery.parseJSON(response);
+
+                if (!proceed.result) {
+
+                    statusTitle
+                        .text('disabled')
+                        .css('color', 'red');
+
+                    newSignupButton
+                        .text('Enable')
+                        .removeClass('btn-danger')
+                        .addClass('btn-success');
+
+                    selectContainer.fadeOut();
+
+                } else {
+
+                    statusTitle
+                        .text('enabled')
+                        .css('color', 'green');
+
+                    newSignupButton
+                        .text('Disable')
+                        .removeClass('btn-success')
+                        .addClass('btn-danger');
+
+                    selectContainer.fadeIn();
+                }
+
+                newSignupButton.removeAttr('disabled');
+
+            });
+
+        });
+
         jQuery('#swToggleCartTrack').on('click', function(event) {
 
             jQuery('#swToggleCartTrack').text('Saving...');
@@ -28,7 +73,6 @@
                     jQuery('#swToggleCartTrack').text('Enable');
                     jQuery('#swToggleCartTrack').removeClass('btn-danger');
                     jQuery('#swToggleCartTrack').addClass('btn-success');
-                    jQuery('#swCustomerListSelectContainer').fadeOut();
 
                 } else {
                     jQuery('#swToggleCartTrackTitle').text('enabled');
@@ -36,7 +80,6 @@
                     jQuery('#swToggleCartTrack').text('Disable');
                     jQuery('#swToggleCartTrack').removeClass('btn-success');
                     jQuery('#swToggleCartTrack').addClass('btn-danger');
-                    jQuery('#swCustomerListSelectContainer').fadeIn();
                 }
 
                 jQuery('#swToggleCartTrack').removeAttr('disabled');
@@ -156,6 +199,7 @@
             });
 
         });
+
 
         jQuery('#swGuestListSelect').on('change', function(event) {
 

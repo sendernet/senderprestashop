@@ -38,6 +38,17 @@ if (Tools::getValue('token') !== Tools::getAdminToken($senderprestashop->name)) 
             }
             die(Tools::jsonEncode(array( 'result' => false )));
             // break;
+        case 'saveALlowNewSignups':
+            if (Configuration::updateValue(
+                'SPM_ALLOW_TRACK_NEW_SIGNUPS',
+                !Configuration::get('SPM_ALLOW_TRACK_NEW_SIGNUPS')
+            )) {
+                die(Tools::jsonEncode(array(
+                    'result' => Configuration::get('SPM_ALLOW_TRACK_NEW_SIGNUPS')
+                )));
+            }
+            die(Tools::jsonEncode(array( 'result' => false )));
+            // break;
         default:
             exit;
     }

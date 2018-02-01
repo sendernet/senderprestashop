@@ -54,7 +54,7 @@ class SenderPrestashop extends Module
         $this->author = 'Sender.net';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array(
-            'min' => '1.6',
+            'min' => '1.5.0.1',
             'max' => _PS_VERSION_
         );
         $this->bootstrap = true;
@@ -82,7 +82,7 @@ class SenderPrestashop extends Module
             'SPM_ALLOW_IMPORT'              => 1,
             'SPM_ALLOW_PUSH'                => 1,
             'SPM_ALLOW_TRACK_NEW_SIGNUPS'   => 1,
-            'SPM_ALLOW_TRACK_CARTS'         => 1,
+            'SPM_ALLOW_TRACK_CARTS'         => 1, # <- Allow customers track
             'SPM_CUSTOMERS_LIST_ID'         => 0,
             'SPM_GUEST_LIST_ID'             => 0,
             'SPM_FORM_ID'                   => 0,
@@ -341,10 +341,13 @@ class SenderPrestashop extends Module
         // Validate if we should track
         if (!isset($cookie['email'])
             || !Validate::isLoadedObject($context['cart'])
-            || !Configuration::get('SPM_ALLOW_GUEST_TRACK')
-            || !Configuration::get('SPM_ALLOW_TRACK_CARTS')
-            || !Configuration::get('SPM_IS_MODULE_ACTIVE')) {
-            return $context;
+            || (!Configuration::get('SPM_ALLOW_TRACK_CARTS')
+                && isset($cookie['logged']) && $cookie['logged'])
+            || (!Configuration::get('SPM_ALLOW_GUEST_TRACK')
+                && isset($cookie['is_guest']) && $cookie['is_guest'])
+            || !Configuration::get('SPM_IS_MODULE_ACTIVE')
+            || $this->context->controller instanceof OrderController) {
+            return false;
         }
 
         $this->logDebug('#hookActionCartSummary START');
@@ -369,7 +372,10 @@ class SenderPrestashop extends Module
         // Validate if we should track
         if (!isset($cookie['email'])
             || !Validate::isLoadedObject($context['cart'])
-            || !Configuration::get('SPM_ALLOW_TRACK_CARTS')
+            || (!Configuration::get('SPM_ALLOW_TRACK_CARTS')
+                && isset($cookie['logged']) && $cookie['logged'])
+            || (!Configuration::get('SPM_ALLOW_GUEST_TRACK')
+                && isset($cookie['is_guest']) && $cookie['is_guest'])
             || !Configuration::get('SPM_IS_MODULE_ACTIVE')
             || $this->context->controller instanceof OrderController) {
             return false;
@@ -450,7 +456,7 @@ class SenderPrestashop extends Module
             'gender'     => $context['newCustomer']->id_gender == 1 ? $this->l('Male') : $this->l('Female')
         );
 
-        $listToAdd = Configuration::get('SPM_GUEST_LIST_ID');
+        $listToAdd = Configuration::get('SPM_CUSTOMERS_LIST_ID');
 
         if ($context['newCustomer']->is_guest) {
             $this->logDebug('Adding to guest list: ' . $listToAdd);
