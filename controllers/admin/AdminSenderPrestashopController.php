@@ -108,7 +108,8 @@ class AdminSenderPrestashopController extends ModuleAdminController
         $this->context->controller->addCSS($this->module->views_url . '/css/material-font.css');
         
         $pushProject = $this->module->apiClient()->getPushProject();
-        if ($this->isJson($pushProject)) {
+        
+        if (isset($pushProject->error)) {
             $pushProject = false;
         }
 
@@ -208,11 +209,5 @@ class AdminSenderPrestashopController extends ModuleAdminController
                 . DIRECTORY_SEPARATOR
                 . $this->context->link->getAdminLink('AdminSenderPrestashop')
         );
-    }
-    
-    private function isJson($string)
-    {
-        json_decode($string);
-        return (json_last_error() == JSON_ERROR_NONE);
     }
 }

@@ -28,7 +28,7 @@ class SenderPrestashop extends Module
      * Indicates whether module is in debug mode
      * @var bool
      */
-    private $debug = false;
+    private $debug = true;
 
     /**
      * Sender.net API client
@@ -54,7 +54,7 @@ class SenderPrestashop extends Module
         $this->author = 'Sender.net';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array(
-            'min' => '1.5.0.1',
+            'min' => '1.6.1.0',
             'max' => _PS_VERSION_
         );
         $this->bootstrap = true;
@@ -81,7 +81,7 @@ class SenderPrestashop extends Module
             'SPM_ALLOW_FORMS'               => 1,
             'SPM_ALLOW_IMPORT'              => 1,
             'SPM_ALLOW_PUSH'                => 1,
-            'SPM_ALLOW_TRACK_NEW_SIGNUPS'   => 1,
+            'SPM_ALLOW_TRACK_NEW_SIGNUPS'   => 1, # Always enabled, use customers tracking instead
             'SPM_ALLOW_TRACK_CARTS'         => 1, # <- Allow customers track
             'SPM_CUSTOMERS_LIST_ID'         => 0,
             'SPM_GUEST_LIST_ID'             => 0,
@@ -439,7 +439,7 @@ class SenderPrestashop extends Module
 
         // Check if user opted in for a newsletter
         if (!$context['newCustomer']->newsletter
-            || !$context['newCustomer']->optin) {
+            && !$context['newCustomer']->optin) {
             $this->logDebug('Customer did not checked newsletter or optin!');
             return $context;
         }

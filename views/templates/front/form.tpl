@@ -10,7 +10,13 @@
  *}
 {if $showForm and $formUrl}
 <div>
-    <div class="col-xs-4">
+    <div class="col-xs-4" id="senderFormContainer">
+        <script type="text/javascript">
+            jQuery(document).ready(function() { 
+                jQuery('#sender-sub-main').detach();
+                jQuery('#senderFormContainer').append(jQuery('.sender-sub-main'));
+            });
+        </script>
         <script type="text/javascript" src="{$formUrl|escape:'htmlall':'UTF-8'}"></script>
     </div>
 </div>

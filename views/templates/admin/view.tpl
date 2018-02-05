@@ -23,36 +23,45 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
             </span>
         </div>
     </div>
-
-    <div class="col-sm-2 col-xs-12 sender-prestashop-hide-small sender-prestashop-menu">
-        <ul class="spm-tabs spm-main-menu">
-            <li class="tab-link spm-current spm-active" data-tab="spm-home">
-                <a href="#!spm-home">
-                    <i class="zmdi zmdi-home"></i>
-                    {l s='Home' mod='senderprestashop'}
-                </a>
-            </li>
-            <li class="tab-link" data-tab="spm-forms">
-                <a href="#!spm-forms">
-                    <i class="zmdi zmdi-format-list-bulleted"></i>
-                    {l s='Forms' mod='senderprestashop'}
-                </a>
-            </li>
-            <li class="tab-link" data-tab="spm-carts">
-                <a href="#!spm-carts">
-                    <i class="zmdi zmdi-shopping-cart"></i>
-                    {l s='Cart tracking' mod='senderprestashop'}
-                </a>
-            </li>
-            <li class="tab-link" data-tab="spm-push" disabled>
-                <a href="#!spm-spm-push">
-                    <i class="zmdi zmdi-notifications-active"></i>
-                    {l s='Push notifications' mod='senderprestashop'}
-                </a>
-            </li>
-           
-        </ul>
+    <div class="panel panel-default col-sm-2 col-xs-12" style="margin-top: 15px;">
+        <div class="panel-heading">
+            <i class="zmdi zmdi-notifications-active"></i> 
+            {l s='Menu' mod='senderprestashop'}    
+        </div>
+        <div class="panel-body" style="padding: 0px;">
+            <div class="">
+                <ul class="spm-tabs spm-main-menu">
+                    <li class="tab-link spm-current spm-active" data-tab="spm-home">
+                        <a href="#!spm-home">
+                            <i class="zmdi zmdi-home"></i>
+                            {l s='Home' mod='senderprestashop'}
+                        </a>
+                    </li>
+                    <li class="tab-link" data-tab="spm-forms">
+                        <a href="#!spm-forms">
+                            <i class="zmdi zmdi-format-list-bulleted"></i>
+                            {l s='Forms' mod='senderprestashop'}
+                        </a>
+                    </li>
+                    <li class="tab-link" data-tab="spm-carts">
+                        <a href="#!spm-carts">
+                            <i class="zmdi zmdi-shopping-cart"></i>
+                            {l s='Cart tracking' mod='senderprestashop'}
+                        </a>
+                    </li>
+                    <li class="tab-link" data-tab="spm-push" disabled>
+                        <a href="#!spm-spm-push">
+                            <i class="zmdi zmdi-notifications-active"></i>
+                            {l s='Push notifications' mod='senderprestashop'}
+                        </a>
+                    </li>
+                   
+                </ul>
+            </div>
+        </div>
     </div>
+    
+
 
     <div class="col-sm-10 col-xs-12 sender-prestashop-content">
         {* HOME TAB *}
@@ -171,6 +180,24 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
 
         {* PUSH Settings tab *}
         <div id="spm-push" class="spm-tab-content">
+            {if not $pushProject}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="zmdi zmdi-format-list-bulleted"></i> 
+                    {l s='Push project' mod='senderprestashop'}
+                </div>
+                <div class="panel-body">
+                    <div class="alert alert-warning">
+                        {l s='There was no push project found on your Sender.net`s account. Please configure and refresh this page' mod='senderprestashop'}
+                    </div>
+                    <p>
+                        <a class="btn btn-lg btn-info" href="{$baseUrl|escape:'htmlall':'UTF-8'}/push_projects/create">
+                            {l s='Configure push project' mod='senderprestashop'}
+                        </a>
+                    </p>
+                </div>
+            </div>
+            {else}
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="zmdi zmdi-notifications-active"></i> 
@@ -206,33 +233,24 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                         </p>
                     </blockquote>
                     <blockquote class="{if not $allowPush}hidden{/if}" id="push_enabled">
-                        {if not $pushProject}
-                            <h3>
-                                <i class="zmdi zmdi-alert-circle-o"></i> 
-                                {l s='You don’t have a push project configured' mod='senderprestashop'}
-                            </h3>
-                            <a class="sender-prestashop-button" target="_BLANK" href="{$baseUrl|escape:'htmlall':'UTF-8'}/push_projects/create">
-                                {l s='Create a new push project' mod='senderprestashop'}
-                            </a> 
-                        {else}
-                            <p>
-                                {l s='When enabled, this feature shows your push project’s subscribe icon on your website. You can manage the push campaigns in your Sender.net account’s dashboard.' mod='senderprestashop'}
-                            </p>
-                            <p>
-                                <a target="_BLANK" href="http://help.sender.net/section/push-notifications/">
-                                    {l s='Getting started with push notifications' mod='senderprestashop'}
-                                </a> | 
-                                <a target="_BLANK" href="{$baseUrl|escape:'htmlall':'UTF-8'}/push_campaigns">
-                                    {l s='Manage your push campaigns' mod='senderprestashop'}
-                                </a> | 
-                                <a target="_BLANK" href="{$baseUrl|escape:'htmlall':'UTF-8'}/push_projects/view">
-                                    {l s='Customize push project' mod='senderprestashop'}
-                                </a>
-                            </p>
-                        {/if}
+                        <p>
+                            {l s='When enabled, this feature shows your push project’s subscribe icon on your website. You can manage the push campaigns in your Sender.net account’s dashboard.' mod='senderprestashop'}
+                        </p>
+                        <p>
+                            <a target="_BLANK" href="http://help.sender.net/section/push-notifications/">
+                                {l s='Getting started with push notifications' mod='senderprestashop'}
+                            </a> | 
+                            <a target="_BLANK" href="{$baseUrl|escape:'htmlall':'UTF-8'}/push_campaigns">
+                                {l s='Manage your push campaigns' mod='senderprestashop'}
+                            </a> | 
+                            <a target="_BLANK" href="{$baseUrl|escape:'htmlall':'UTF-8'}/push_projects/view">
+                                {l s='Customize push project' mod='senderprestashop'}
+                            </a>
+                        </p>
                     </blockquote>
                 </div>
             </div>
+            {/if}
         </div>
 
         {* CART TRACKING Tab *}
@@ -317,56 +335,7 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                     {/if}
                 </div>
             </div>
-
-            {* NEW SIGNUP PANEL *}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <i class="zmdi zmdi-shopping-cart"></i> 
-                    {l s='Track new signups is:' mod='senderprestashop'}
-                    {if not $allowNewSignups}
-                        <span id="swToggleNewSignupsTitle" style="color:red;">
-                            {l s='disabled' mod='senderprestashop'}
-                        </span>
-                    {else}
-                        <span id="swToggleNewSignupsTitle" style="color:green;">
-                            {l s='enabled' mod='senderprestashop'}
-                        </span>
-                    {/if}
-                </div>
-                <div class="panel-body">
-                    {if empty($customersLists)}
-                    <div class="alert alert-warning">
-                        {l s='To track new signups you must have at least one list at your Sender.net`s account' mod='senderprestashop'}
-                    </div>
-                    <p>
-                        <a class="btn btn-lg btn-info" href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists/add">
-                            {l s='Create a new list' mod='senderprestashop'}
-                        </a>
-                    </p>
-                    {else}
-                    <div class="spm-details-settings">
-                        <button id="swToggleNewSignups" class="btn btn-lg {if not $allowNewSignups}btn-success{else}btn-danger{/if}">
-                        {if not $allowNewSignups}
-                            {l s='Enable' mod='senderprestashop'}
-                        {else}
-                            {l s='Disable' mod='senderprestashop'}
-                        {/if}
-                        </button>
-                    </div>
-                    <blockquote>
-                        <p>
-                            {l s='If this feature is enabled - all new customers who signs up will be added to the selected customer list.' mod='senderprestashop'}
-                        </p>
-                        <p>
-                            <a href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists">
-                                {l s='Manage lists' mod='senderprestashop'}
-                            </a>
-                        </p>
-                    </blockquote>
-                    {/if}
-                </div>
-            </div>
-
+            
             {* ALLOW GUEST TRACKING PANEL *}
             <div class="panel panel-default">
                 <div class="panel-heading">

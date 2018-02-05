@@ -24,8 +24,8 @@ class SenderApiClient
 {
 
     public static $version = '1.4';
-    // public static $baseUrl = 'https://app.sender.net';
-    public static $baseUrl = 'http://sinergijait.lt/Vytautas/wipsistema';
+    public static $baseUrl = 'https://app.sender.net';
+    // public static $baseUrl = 'http://sinergijait.lt/Vytautas/wipsistema';
 
 
     private $apiKey;
