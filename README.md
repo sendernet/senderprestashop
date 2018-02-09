@@ -14,7 +14,7 @@ Description
 
 ## Prerequisities
 
-Have installed Prestashop (min 1.5.1)
+Have installed Prestashop (min 1.6.10)
 
 <a href="https://www.sender.net" target="_blank">Sender.net Account</a>
 
