@@ -149,11 +149,6 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                             {l s='When enabled, a Sender.net form widget will appear in the customization menu.
                              It allows you to insert your Sender.net form into anywhere on your web page.' mod='senderprestashop'}
                         </p>
-                        <p>
-                            <a href="#">
-                                {l s='Manage widgets' mod='senderprestashop'}
-                            </a>
-                        </p>
                     </blockquote>
                     <div class="col-xs-12{if not $allowForms} hidden{/if}" id="forms_tab">
                         <div class="form-group">

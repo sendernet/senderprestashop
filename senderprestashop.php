@@ -28,7 +28,7 @@ class SenderPrestashop extends Module
      * Indicates whether module is in debug mode
      * @var bool
      */
-    private $debug = true;
+    private $debug = false;
 
     /**
      * Sender.net API client
@@ -50,7 +50,7 @@ class SenderPrestashop extends Module
     {
         $this->name = 'senderprestashop';
         $this->tab = 'emailing';
-        $this->version = '1.0.0';
+        $this->version = '1.0.1';
         $this->author = 'Sender.net';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array(
@@ -270,7 +270,7 @@ class SenderPrestashop extends Module
                 'recover'
             ) . '&hash={$cart_hash}',
             "currency"    => Currency::getCurrent()->iso_code,
-            "grand_total" =>  $cart->getTotalCart($cart->id),
+            "grand_total" =>  $cart->getOrderTotal(),
             "products"    => array()
         );
 
@@ -347,7 +347,7 @@ class SenderPrestashop extends Module
                 && isset($cookie['is_guest']) && $cookie['is_guest'])
             || !Configuration::get('SPM_IS_MODULE_ACTIVE')
             || $this->context->controller instanceof OrderController) {
-            return false;
+            return $context;
         }
 
         $this->logDebug('#hookActionCartSummary START');
@@ -378,7 +378,7 @@ class SenderPrestashop extends Module
                 && isset($cookie['is_guest']) && $cookie['is_guest'])
             || !Configuration::get('SPM_IS_MODULE_ACTIVE')
             || $this->context->controller instanceof OrderController) {
-            return false;
+            return $context;
         }
 
         $this->logDebug('#hookActionCartSave START');
