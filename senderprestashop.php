@@ -265,10 +265,10 @@ class SenderPrestashop extends Module
         $data = array(
             "email"       => $email,
             "external_id" => $cart->id,
-            "url"         => $this->context->link->getModuleLink(
-                'senderprestashop',
-                'recover'
-            ) . '&hash={$cart_hash}',
+            "url"         => _PS_BASE_URL_.__PS_BASE_URI__
+                            . 'index.php?fc=module&module='
+                            . $this->name
+                            . '&controller=recover&hash={$cart_hash}',
             "currency"    => Currency::getCurrent()->iso_code,
             "grand_total" =>  $cart->getOrderTotal(),
             "products"    => array()
