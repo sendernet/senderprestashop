@@ -2,7 +2,7 @@
 /**
  * 2010-2018 Sender.net
  *
- * Sender.net Integration module for prestahop
+ * Sender.net Automated Emails
  *
  * @author Sender.net <info@sender.net>
  * @copyright 2010-2018 Sender.net
@@ -11,12 +11,12 @@
  */
 
 require_once(dirname(__FILE__) . '/../../../config/config.inc.php');
-require_once(dirname(__FILE__).'/../senderprestashop.php');
+require_once(dirname(__FILE__) . '/../senderautomatedemails.php');
 
-$senderprestashop = new SenderPrestashop();
+$senderautomatedemails = new SenderAutomatedEmails();
 
 
-if (Tools::getValue('token') !== Tools::getAdminToken($senderprestashop->name)) {
+if (Tools::getValue('token') !== Tools::getAdminToken($senderautomatedemails->name)) {
     die(Tools::jsonEncode(array( 'result' => false )));
 } else {
     switch (Tools::getValue('action')) {

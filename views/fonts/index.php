@@ -2,7 +2,7 @@
 /**
  * 2010-2018 Sender.net
  *
- * Sender.net Integration module for prestahop
+ * Sender.net Automated Emails
  *
  * @author Sender.net <info@sender.net>
  * @copyright 2010-2018 Sender.net

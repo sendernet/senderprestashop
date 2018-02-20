@@ -2,7 +2,7 @@
 /**
  * 2010-2018 Sender.net
  *
- * Sender.net Integration module for prestahop
+ * Sender.net Automated Emails
  *
  * @author Sender.net <info@sender.net>
  * @copyright 2010-2018 Sender.net
@@ -15,8 +15,8 @@ if (!defined('_PS_VERSION_')) {
 }
 
 require_once 'lib/Sender/SenderApiClient.php';
- 
-class SenderPrestashop extends Module
+ require_once(_PS_CONFIG_DIR_ . "/config.inc.php");
+class SenderAutomatedEmails extends Module
 {
     /**
      * Default settings array
@@ -48,9 +48,9 @@ class SenderPrestashop extends Module
      */
     public function __construct()
     {
-        $this->name = 'senderprestashop';
+        $this->name = 'senderautomatedemails';
         $this->tab = 'emailing';
-        $this->version = '1.0.1';
+        $this->version = '1.0.0';
         $this->author = 'Sender.net';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array(
@@ -58,6 +58,7 @@ class SenderPrestashop extends Module
             'max' => _PS_VERSION_
         );
         $this->bootstrap = true;
+        $this->module_key = 'ae9d0345b98417ac768db7c8f321ff7c';
 
         $this->views_url = _PS_ROOT_DIR_ . '/' . basename(_PS_MODULE_DIR_) . '/' . $this->name . '/views';
         $this->module_url = __PS_BASE_URI__ . basename(_PS_MODULE_DIR_) . '/' . $this->name;
@@ -71,8 +72,8 @@ class SenderPrestashop extends Module
         
         parent::__construct();
 
-        $this->displayName = $this->l('Sender.net Integration');
-        $this->description = $this->l('Sender.net email marketing integration for PrestaShop.');
+        $this->displayName = $this->l('Sender.net Automated Emails');
+        $this->description = $this->l('All you need for your email marketing in one tool.');
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
         
         $this->defaultSettings = array(
@@ -214,7 +215,7 @@ class SenderPrestashop extends Module
             }
 
             $tabsArray = array();
-            $tabsArray[] = Tab::getIdFromClassName("AdminSenderPrestashop");
+            $tabsArray[] = Tab::getIdFromClassName("AdminSenderAutomatedEmails");
             foreach ($tabsArray as $tabId) {
                 if ($tabId) {
                     $tab = new Tab($tabId);
@@ -565,7 +566,7 @@ class SenderPrestashop extends Module
      */
     public function getContent()
     {
-        Tools::redirectAdmin($this->context->link->getAdminLink('AdminSenderPrestashop'));
+        Tools::redirectAdmin($this->context->link->getAdminLink('AdminSenderAutomatedEmails'));
     }
 
     /**
@@ -577,8 +578,8 @@ class SenderPrestashop extends Module
         
 
         $new_tab = new Tab();
-        $new_tab->class_name = "AdminSenderPrestashop";
-        $new_tab->module = "senderprestashop";
+        $new_tab->class_name = "AdminSenderAutomatedEmails";
+        $new_tab->module = "senderautomatedemails";
         $new_tab->id_parent = 0;
         foreach ($langs as $l) {
             $new_tab->name[$l['id_lang']] = $this->l('Sender.net Settings');
@@ -599,7 +600,7 @@ class SenderPrestashop extends Module
         if ($this->debug) {
             if (!$this->debugLogger) {
                 $this->debugLogger = new FileLogger(0);
-                $this->debugLogger->setFilename(_PS_ROOT_DIR_.'/log/sender_prestashop_logs_'.date('Ymd').'.log');
+                $this->debugLogger->setFilename(_PS_ROOT_DIR_.'/log/sender_automated_emails_logs_'.date('Ymd').'.log');
             }
             $this->debugLogger->logDebug('
 

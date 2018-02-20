@@ -1,7 +1,7 @@
 {*
  * 2010-2018 Sender.net
  *
- * Sender.net Integration module for prestahop
+ * Sender.net Automated Emails
  *
  * @author Sender.net <info@sender.net>
  * @copyright 2010-2018 Sender.net
@@ -26,7 +26,7 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
     <div class="panel panel-default col-sm-2 col-xs-12" style="margin-top: 15px;">
         <div class="panel-heading">
             <i class="zmdi zmdi-notifications-active"></i> 
-            {l s='Menu' mod='senderprestashop'}    
+            {l s='Menu' mod='senderautomatedemails'}    
         </div>
         <div class="panel-body" style="padding: 0px;">
             <div class="">
@@ -34,25 +34,25 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                     <li class="tab-link spm-current spm-active" data-tab="spm-home">
                         <a href="#!spm-home">
                             <i class="zmdi zmdi-home"></i>
-                            {l s='Home' mod='senderprestashop'}
+                            {l s='Home' mod='senderautomatedemails'}
                         </a>
                     </li>
                     <li class="tab-link" data-tab="spm-forms">
                         <a href="#!spm-forms">
                             <i class="zmdi zmdi-format-list-bulleted"></i>
-                            {l s='Forms' mod='senderprestashop'}
+                            {l s='Forms' mod='senderautomatedemails'}
                         </a>
                     </li>
                     <li class="tab-link" data-tab="spm-carts">
                         <a href="#!spm-carts">
                             <i class="zmdi zmdi-shopping-cart"></i>
-                            {l s='Cart tracking' mod='senderprestashop'}
+                            {l s='Cart tracking' mod='senderautomatedemails'}
                         </a>
                     </li>
                     <li class="tab-link" data-tab="spm-push" disabled>
                         <a href="#!spm-spm-push">
                             <i class="zmdi zmdi-notifications-active"></i>
-                            {l s='Push notifications' mod='senderprestashop'}
+                            {l s='Push notifications' mod='senderautomatedemails'}
                         </a>
                     </li>
                    
@@ -69,15 +69,15 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="zmdi zmdi-notifications-active"></i> 
-                    {l s='Plugin status is' mod='senderprestashop'} 
-                    <span style="color:green;">{l s='ACTIVE' mod='senderprestashop'}</span>
+                    {l s='Plugin status is' mod='senderautomatedemails'} 
+                    <span style="color:green;">{l s='ACTIVE' mod='senderautomatedemails'}</span>
                 </div>
                 <div class="panel-body">
                     <div class="spm-details-settings">
                         <table class="table" style="margin-bottom: 25px;">
                             <tr>
                                 <td>
-                                    {l s='User:' mod='senderprestashop'} 
+                                    {l s='User:' mod='senderautomatedemails'} 
                                 </td>
                                 <td>
                                     <strong>{$connectedUser->email|escape:'htmlall':'UTF-8'}</strong>
@@ -85,7 +85,7 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                             </tr>
                             <tr>
                                 <td>
-                                    {l s='Api key:' mod='senderprestashop'} 
+                                    {l s='Api key:' mod='senderautomatedemails'} 
                                 </td>
                                 <td>
                                     <strong>{$connectedUser->api_key|escape:'htmlall':'UTF-8'}</strong>
@@ -93,7 +93,7 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                             </tr>
                         </table>
                         <a href="{$disconnectUrl|escape:'htmlall':'UTF-8'}" class="btn btn-lg btn-danger">
-                            {l s='Disconnect' mod='senderprestashop'}
+                            {l s='Disconnect' mod='senderautomatedemails'}
                         </a>
                     </div>
                 </div>
@@ -106,15 +106,15 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="zmdi zmdi-format-list-bulleted"></i> 
-                    {l s='Form widget information' mod='senderprestashop'}
+                    {l s='Form widget information' mod='senderautomatedemails'}
                 </div>
                 <div class="panel-body">
                     <div class="alert alert-warning">
-                        {l s='There was no form found on your Sender.net`s account. Please create a new form and refresh this page' mod='senderprestashop'}
+                        {l s='There was no form found on your Sender.net`s account. Please create a new form and refresh this page' mod='senderautomatedemails'}
                     </div>
                     <p>
                         <a class="btn btn-lg btn-info" href="{$baseUrl|escape:'htmlall':'UTF-8'}/forms/add">
-                            {l s='Create a form' mod='senderprestashop'}
+                            {l s='Create a form' mod='senderautomatedemails'}
                         </a>
                     </p>
                 </div>
@@ -123,14 +123,14 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="zmdi zmdi-format-list-bulleted"></i> 
-                    {l s='Widget is ' mod='senderprestashop'}
+                    {l s='Widget is ' mod='senderautomatedemails'}
                     {if not $allowForms}
                         <span id="swToggleWidgetTitle" style="color:red;">
-                            {l s='disabled' mod='senderprestashop'}
+                            {l s='disabled' mod='senderautomatedemails'}
                         </span>
                     {else}
                         <span id="swToggleWidgetTitle" style="color:green;">
-                            {l s='enabled' mod='senderprestashop'}
+                            {l s='enabled' mod='senderautomatedemails'}
                         </span>
                     {/if}
                 </div>
@@ -138,26 +138,26 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                     <div class="spm-details-settings">
                         <button id="swToggleWidget" class="btn btn-lg {if not $allowForms}btn-success{else}btn-danger{/if}">
                         {if not $allowForms}
-                            {l s='Enable' mod='senderprestashop'}
+                            {l s='Enable' mod='senderautomatedemails'}
                         {else}
-                            {l s='Disable' mod='senderprestashop'}
+                            {l s='Disable' mod='senderautomatedemails'}
                         {/if}
                         </button>
                     </div>
                     <blockquote>
                         <p>
                             {l s='When enabled, a Sender.net form widget will appear in the customization menu.
-                             It allows you to insert your Sender.net form into anywhere on your web page.' mod='senderprestashop'}
+                             It allows you to insert your Sender.net form into anywhere on your web page.' mod='senderautomatedemails'}
                         </p>
                     </blockquote>
                     <div class="col-xs-12{if not $allowForms} hidden{/if}" id="forms_tab">
                         <div class="form-group">
                             <label for="swFormsSelect">
-                                {l s='Select form' mod='senderprestashop'}
+                                {l s='Select form' mod='senderautomatedemails'}
                             </label>
                             <select id="swFormsSelect" name="swFormsSelect" value="{$formId|escape:'htmlall':'UTF-8'}">
                                 <option value="0">
-                                    {l s='Select a form' mod='senderprestashop'}
+                                    {l s='Select a form' mod='senderautomatedemails'}
                                 </option>
                                 {foreach $formsList as $form}
                                 <option {if $form->id eq $formId}selected="selected"{/if} value="{$form->id|escape:'htmlall':'UTF-8'}">
@@ -179,15 +179,15 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="zmdi zmdi-format-list-bulleted"></i> 
-                    {l s='Push project' mod='senderprestashop'}
+                    {l s='Push project' mod='senderautomatedemails'}
                 </div>
                 <div class="panel-body">
                     <div class="alert alert-warning">
-                        {l s='There was no push project found on your Sender.net`s account. Please configure and refresh this page' mod='senderprestashop'}
+                        {l s='There was no push project found on your Sender.net`s account. Please configure and refresh this page' mod='senderautomatedemails'}
                     </div>
                     <p>
                         <a class="btn btn-lg btn-info" href="{$baseUrl|escape:'htmlall':'UTF-8'}/push_projects/create">
-                            {l s='Configure push project' mod='senderprestashop'}
+                            {l s='Configure push project' mod='senderautomatedemails'}
                         </a>
                     </p>
                 </div>
@@ -196,14 +196,14 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="zmdi zmdi-notifications-active"></i> 
-                    {l s='Push notifications are' mod='senderprestashop'} 
+                    {l s='Push notifications are' mod='senderautomatedemails'} 
                     {if not $allowPush}
                         <span id="swTogglePushTitle" style="color:red;">
-                            {l s='disabled' mod='senderprestashop'}
+                            {l s='disabled' mod='senderautomatedemails'}
                         </span>
                     {else}
                         <span id="swTogglePushTitle" style="color:green;">
-                            {l s='enabled' mod='senderprestashop'}
+                            {l s='enabled' mod='senderautomatedemails'}
                         </span>
                     {/if}
                 </div>
@@ -211,35 +211,35 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                     <div class="spm-details-settings">
                         <button id="swTogglePush" class="btn btn-lg {if not $allowPush}btn-success{else}btn-danger{/if}">
                         {if not $allowPush}
-                            {l s='Enable' mod='senderprestashop'}
+                            {l s='Enable' mod='senderautomatedemails'}
                         {else}
-                            {l s='Disable' mod='senderprestashop'}
+                            {l s='Disable' mod='senderautomatedemails'}
                         {/if}
                         </button>
                     </div>
                     <blockquote class="{if $allowPush}hidden{/if}" id="push_disabled">
                         <p>
-                            {l s='When enabled, this feature shows your push project’s subscribe icon on your website. You can manage the push campaigns in your Sender.net account’s dashboard.' mod='senderprestashop'}
+                            {l s='When enabled, this feature shows your push project’s subscribe icon on your website. You can manage the push campaigns in your Sender.net account’s dashboard.' mod='senderautomatedemails'}
                         </p>
                         <p>
                             <a target="_BLANK" href="http://help.sender.net/section/push-notifications/">
-                                {l s='Getting started with push notifications' mod='senderprestashop'}
+                                {l s='Getting started with push notifications' mod='senderautomatedemails'}
                             </a>
                         </p>
                     </blockquote>
                     <blockquote class="{if not $allowPush}hidden{/if}" id="push_enabled">
                         <p>
-                            {l s='When enabled, this feature shows your push project’s subscribe icon on your website. You can manage the push campaigns in your Sender.net account’s dashboard.' mod='senderprestashop'}
+                            {l s='When enabled, this feature shows your push project’s subscribe icon on your website. You can manage the push campaigns in your Sender.net account’s dashboard.' mod='senderautomatedemails'}
                         </p>
                         <p>
                             <a target="_BLANK" href="http://help.sender.net/section/push-notifications/">
-                                {l s='Getting started with push notifications' mod='senderprestashop'}
+                                {l s='Getting started with push notifications' mod='senderautomatedemails'}
                             </a> | 
                             <a target="_BLANK" href="{$baseUrl|escape:'htmlall':'UTF-8'}/push_campaigns">
-                                {l s='Manage your push campaigns' mod='senderprestashop'}
+                                {l s='Manage your push campaigns' mod='senderautomatedemails'}
                             </a> | 
                             <a target="_BLANK" href="{$baseUrl|escape:'htmlall':'UTF-8'}/push_projects/view">
-                                {l s='Customize push project' mod='senderprestashop'}
+                                {l s='Customize push project' mod='senderautomatedemails'}
                             </a>
                         </p>
                     </blockquote>
@@ -255,14 +255,14 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="zmdi zmdi-shopping-cart"></i> 
-                    {l s='Customer cart tracking is' mod='senderprestashop'}
+                    {l s='Customer cart tracking is' mod='senderautomatedemails'}
                     {if not $allowCartTrack}
                         <span id="swToggleCartTrackTitle" style="color:red;">
-                            {l s='disabled' mod='senderprestashop'}
+                            {l s='disabled' mod='senderautomatedemails'}
                         </span>
                     {else}
                         <span id="swToggleCartTrackTitle" style="color:green;">
-                            {l s='enabled' mod='senderprestashop'}
+                            {l s='enabled' mod='senderautomatedemails'}
                         </span>
                     {/if}
                 </div>
@@ -271,15 +271,15 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                     <div class="spm-details-settings">
                         <button id="swToggleCartTrack" class="btn btn-lg {if not $allowCartTrack}btn-success{else}btn-danger{/if}">
                         {if not $allowCartTrack}
-                            {l s='Enable' mod='senderprestashop'}
+                            {l s='Enable' mod='senderautomatedemails'}
                         {else}
-                            {l s='Disable' mod='senderprestashop'}
+                            {l s='Disable' mod='senderautomatedemails'}
                         {/if}
                         </button>
                     </div>
                     <blockquote>
                         <p>
-                            {l s='If this feature is enabled - logged in customers cart will be tracked.' mod='senderprestashop'}
+                            {l s='If this feature is enabled - logged in customers cart will be tracked.' mod='senderautomatedemails'}
                         </p>
                     </blockquote>
                 </div>
@@ -289,36 +289,36 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="zmdi zmdi-shopping-cart"></i> 
-                    {l s='Customer list' mod='senderprestashop'}
+                    {l s='Customer list' mod='senderautomatedemails'}
                 </div>
                 <div class="panel-body">
                     {if empty($customersLists)}
                     <div class="alert alert-warning">
-                        {l s='To track customers carts you must have at least one list at your Sender.net`s account' mod='senderprestashop'}
+                        {l s='To track customers carts you must have at least one list at your Sender.net`s account' mod='senderautomatedemails'}
                     </div>
                     <p>
                         <a class="btn btn-lg btn-info" href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists/add">
-                            {l s='Create a new list' mod='senderprestashop'}
+                            {l s='Create a new list' mod='senderautomatedemails'}
                         </a>
                     </p>
                     {else}
                     <blockquote>
                             <p>
-                                {l s='Select to which list save new signups and customers whose carts were tracked' mod='senderprestashop'}
+                                {l s='Select to which list save new signups and customers whose carts were tracked' mod='senderautomatedemails'}
                             </p>
                             <p>
                                 <a href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists">
-                                    {l s='Manage lists' mod='senderprestashop'}
+                                    {l s='Manage lists' mod='senderautomatedemails'}
                                 </a>
                             </p>
                         </blockquote>
                         <div id="swCustomerListSelectContainer" class="form-group">
                             <label for="swCustomerListSelect">
-                                {l s='Select list' mod='senderprestashop'}
+                                {l s='Select list' mod='senderautomatedemails'}
                             </label>
                             <select id="swCustomerListSelect" value="{$formId|escape:'htmlall':'UTF-8'}">
                                 <option value="0">
-                                    {l s='Select a list' mod='senderprestashop'}
+                                    {l s='Select a list' mod='senderautomatedemails'}
                                 </option>
                                 {foreach $customersLists as $customerList}
                                 <option {if $customerList->id eq $customerListId}selected="selected"{/if} value="{$customerList->id|escape:'htmlall':'UTF-8'}">
@@ -335,55 +335,55 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="zmdi zmdi-shopping-cart"></i> 
-                    {l s='Guest cart tracking is' mod='senderprestashop'} 
+                    {l s='Guest cart tracking is' mod='senderautomatedemails'} 
                     {if not $allowGuestCartTracking}
                         <span id="swToggleGuestCartTrackingTitle" style="color:red;">
-                            {l s='disabled' mod='senderprestashop'}
+                            {l s='disabled' mod='senderautomatedemails'}
                         </span>
                     {else}
                         <span id="swToggleGuestCartTrackingTitle" style="color:green;">
-                            {l s='enabled' mod='senderprestashop'}
+                            {l s='enabled' mod='senderautomatedemails'}
                         </span>
                     {/if}
                 </div>
                 <div class="panel-body">
                     {if empty($guestsLists)}
                     <div class="alert alert-warning">
-                        {l s='To track guest user carts you must have at least one list at your Sender.net`s account' mod='senderprestashop'}
+                        {l s='To track guest user carts you must have at least one list at your Sender.net`s account' mod='senderautomatedemails'}
                     </div>
                     <p>
                         <a class="btn btn-lg btn-info" href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists/add">
-                            {l s='Create a new list' mod='senderprestashop'}
+                            {l s='Create a new list' mod='senderautomatedemails'}
                         </a>
                     </p>
                     {else}
                     <div class="spm-details-settings">
                         <button id="swToggleGuestCartTracking" class="btn btn-lg {if not $allowGuestCartTracking}btn-success{else}btn-danger{/if}">
                         {if not $allowGuestCartTracking}
-                            {l s='Enable' mod='senderprestashop'}
+                            {l s='Enable' mod='senderautomatedemails'}
                         {else}
-                            {l s='Disable' mod='senderprestashop'}
+                            {l s='Disable' mod='senderautomatedemails'}
                         {/if}
                         </button>
                     </div>
                     <blockquote>
                         <p>
-                            {l s='When enabled, will track guest carts and save guest details to the list selected below.' mod='senderprestashop'}
+                            {l s='When enabled, will track guest carts and save guest details to the list selected below.' mod='senderautomatedemails'}
                         </p>
                         <p>
                             <a href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists">
-                                {l s='Manage lists' mod='senderprestashop'}
+                                {l s='Manage lists' mod='senderautomatedemails'}
                             </a>
                         </p>
                     </blockquote>
                     <div class="col-xs-12{if not $allowGuestCartTracking} hidden{/if}" id="guests_lists">
                         <div class="form-group">
                             <label for="swGuestListSelect">
-                                {l s='Select list' mod='senderprestashop'}
+                                {l s='Select list' mod='senderautomatedemails'}
                             </label>
                             <select id="swGuestListSelect" name="swGuestListSelect" value="{$formId|escape:'htmlall':'UTF-8'}">
                                 <option value="0">
-                                    {l s='Select a list' mod='senderprestashop'}
+                                    {l s='Select a list' mod='senderautomatedemails'}
                                 </option>
                                 {foreach $guestsLists as $guestsList}
                                 <option {if $guestsList->id eq $guestListId}selected="selected"{/if} value="{$guestsList->id|escape:'htmlall':'UTF-8'}">

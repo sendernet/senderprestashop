@@ -1,4 +1,4 @@
-# Sender.net Integration Module for Prestashop
+# Sender.net Automated Emails
 
 Description
 
@@ -20,9 +20,7 @@ Have installed Prestashop (min 1.6.10)
 
 ## Installation
 
-You can get Sender.net Module for Prestashop Addons Store
-
-or if you wish to poke around in your dev enviroment, just clone this repo 🙂
+Download Sender.net Automated Emails module from Prestashop store.
 
 
 ## Module Documentation

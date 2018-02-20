@@ -8,31 +8,14 @@
  * @copyright 2010-2018 Sender.net
  */
 
-// Not sure if needed?
-if (!defined('_PS_VERSION_')) {
-    exit;
-}
-
-/**
- * Sender.net Api Class
- * Handles communication with sender
- *
- *
- *
- */
 class SenderApiClient
 {
 
     public static $version = '1.4';
     public static $baseUrl = 'https://app.sender.net';
-    // public static $baseUrl = 'https://dev2.sinergijait.lt/Vytautas/sender';
-
-
     private $apiKey;
     private $apiEndpoint;
     private $commerceEndpoint;
-    // Debug
-    // private $baseUrl = 'http://sinergijait.lt/Vytautas/wipsistema';
 
     public function __construct($apiKey = null)
     {
@@ -72,7 +55,7 @@ class SenderApiClient
      */
     public function setApiKey($key = null)
     {
-        if (!$key) { // || strlen($key) < 32 #add later when not in development
+        if (!$key) {
             return false;
         }
         

@@ -2,7 +2,7 @@
 /**
  * 2010-2018 Sender.net
  *
- * Sender.net Integration module for prestahop
+ * Sender.net Automated Emails
  *
  * @author Sender.net <info@sender.net>
  * @copyright 2010-2018 Sender.net
@@ -12,7 +12,7 @@
 
 require_once(dirname(__FILE__) . '/../../lib/Sender/SenderApiClient.php');
 
-class AdminSenderPrestashopController extends ModuleAdminController
+class AdminSenderAutomatedEmailsController extends ModuleAdminController
 {
 
     public function __construct()
@@ -69,7 +69,7 @@ class AdminSenderPrestashopController extends ModuleAdminController
             $this->context->shop->getBaseUrl()
                 . basename(_PS_ADMIN_DIR_)
                 . DIRECTORY_SEPARATOR
-                . $this->context->link->getAdminLink('AdminSenderPrestashop')
+                . $this->context->link->getAdminLink('AdminSenderAutomatedEmails')
         );
 
         $options = array(
@@ -95,7 +95,7 @@ class AdminSenderPrestashopController extends ModuleAdminController
         $disconnectUrl = $this->context->shop->getBaseUrl()
             . basename(_PS_ADMIN_DIR_)
             . DIRECTORY_SEPARATOR
-            . $this->context->link->getAdminLink('AdminSenderPrestashop')
+            . $this->context->link->getAdminLink('AdminSenderAutomatedEmails')
             . '&disconnect=true';
 
         $output = '';
@@ -175,8 +175,7 @@ class AdminSenderPrestashopController extends ModuleAdminController
             $this->redirectToAdminMenu();
         } else {
             $this->errors[] = Tools::displayError($this->l('
-                Could not authenticate. Please try again.
-                 If this message persists please contact us at support@sender.net'));
+                Could not authenticate. Please try again.'));
         }
     }
 
@@ -207,7 +206,7 @@ class AdminSenderPrestashopController extends ModuleAdminController
             $this->context->shop->getBaseUrl()
                 . basename(_PS_ADMIN_DIR_)
                 . DIRECTORY_SEPARATOR
-                . $this->context->link->getAdminLink('AdminSenderPrestashop')
+                . $this->context->link->getAdminLink('AdminSenderAutomatedEmails')
         );
     }
 }
