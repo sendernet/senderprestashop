@@ -50,7 +50,7 @@ class SenderAutomatedEmails extends Module
     {
         $this->name = 'senderautomatedemails';
         $this->tab = 'emailing';
-        $this->version = '1.0.0';
+        $this->version = '1.0.1';
         $this->author = 'Sender.net';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array(
@@ -515,7 +515,7 @@ class SenderAutomatedEmails extends Module
                     "quantity"      => $params['product']->quantity
                 );
 
-        $this->context->smarty->assign($options);
+        $this->context->smarty->assign('product', $options);
 
         return $this->context->smarty->fetch($this->views_url . '/templates/front/product_import.tpl');
     }
