@@ -50,7 +50,7 @@ class SenderAutomatedEmails extends Module
     {
         $this->name = 'senderautomatedemails';
         $this->tab = 'emailing';
-        $this->version = '1.0.1';
+        $this->version = '1.0.2';
         $this->author = 'Sender.net';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array(
@@ -263,6 +263,9 @@ class SenderAutomatedEmails extends Module
      */
     private function mapCartData($cart, $email)
     {
+        // Check if the thumbnail type exists
+        $image_type = ImageTypeCore::typeAlreadyExists('home_default') ? 'home_default' : null;
+        
         $data = array(
             "email"       => $email,
             "external_id" => $cart->id,
@@ -278,20 +281,19 @@ class SenderAutomatedEmails extends Module
         $products = $cart->getProducts();
 
         foreach ($products as $product) {
-            $id_image = Product::getCover($product['id_product']);
-            if (sizeof($id_image) > 0) {
-                $image = new Image($id_image['id_image']);
-                $image_url = _PS_BASE_URL_._THEME_PROD_DIR_.$image->getExistingImgPath().".jpg";
-            }
+            $Product = new Product($product['id_product']);
 
+            $price = $Product->getPrice(true, null, 2);
+            
             $prod = array(
-                    'sku'           => $product['reference'],
-                    'name'          => $product['name'],
-                    'price'         => $product['price'],
-                    'price_display' => $product['id_product'],
-                    'qty'           =>  $product['cart_quantity'],
-                    'image'         => $image_url
-                );
+                'sku'           => $product['reference'],
+                'name'          => $product['name'],
+                'price'         => $price,
+                'price_display' => $price . ' ' . Currency::getCurrent()->iso_code,
+                'qty'           => $product['cart_quantity'],
+                'image'         => $this->context->link->getImageLink($product['link_rewrite'], $Product->getCoverWs(), $image_type)
+            );
+
             $data['products'][] = $prod;
         }
 

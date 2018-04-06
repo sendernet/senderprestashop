@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+1.0.2
+============
+* Fixed Product to Cart Data mapping
+
 1.0.1
 ============
 * Fix product block json encoding
