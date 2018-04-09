@@ -264,8 +264,7 @@ class SenderAutomatedEmails extends Module
      */
     private function mapCartData($cart, $email)
     {
-        // Check if the thumbnail type exists
-        $image_type = ImageTypeCore::typeAlreadyExists('home_default') ? 'home_default' : null;
+        $imageType = ImageType::getFormatedName('home');
         
         $data = array(
             "email"       => $email,
@@ -274,8 +273,8 @@ class SenderAutomatedEmails extends Module
                             . 'index.php?fc=module&module='
                             . $this->name
                             . '&controller=recover&hash={$cart_hash}',
-            "currency"    => Currency::getCurrent()->iso_code,
-            "grand_total" =>  $cart->getOrderTotal(),
+            "currency"    => $this->context->currency->iso_code,
+            "grand_total" => $cart->getOrderTotal(),
             "products"    => array()
         );
 
@@ -290,9 +289,13 @@ class SenderAutomatedEmails extends Module
                 'sku'           => $product['reference'],
                 'name'          => $product['name'],
                 'price'         => $price,
-                'price_display' => $price . ' ' . Currency::getCurrent()->iso_code,
+                'price_display' => $price . ' ' . $this->context->currency->iso_code,
                 'qty'           => $product['cart_quantity'],
-                'image'         => $this->context->link->getImageLink($product['link_rewrite'], $Product->getCoverWs(), $image_type)
+                'image'         => $this->context->link->getImageLink(
+                    $product['link_rewrite'],
+                    $Product->getCoverWs(),
+                    $imageType
+                )
             );
 
             $data['products'][] = $prod;
@@ -365,7 +368,7 @@ class SenderAutomatedEmails extends Module
             $listToAdd = Configuration::get('SPM_CUSTOMERS_LIST_ID');
         }
 
-        $addTolistResult = $this->apiClient()->addToList(
+        $this->apiClient()->addToList(
             $recipient,
             $listToAdd
         );
@@ -553,10 +556,14 @@ class SenderAutomatedEmails extends Module
         $options = array(
                     'name'          => $params['product']->name,
                     "image"         => $image_url,
-                    "description"   => $params['product']->description,
+                    "description"   =>  str_replace(
+                        PHP_EOL,
+                        '',
+                        strip_tags($params['product']->description)
+                    ),
                     "price"         => $params['product']->getPublicPrice(),
                     "special_price" => $params['product']->getPublicPrice(),
-                    "currency"      => Currency::getCurrent()->iso_code,
+                    "currency"      => $this->context->currency->iso_code,
                     "quantity"      => $params['product']->quantity
                 );
 
