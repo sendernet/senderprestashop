@@ -15,7 +15,8 @@ if (!defined('_PS_VERSION_')) {
 }
 
 require_once 'lib/Sender/SenderApiClient.php';
- require_once(_PS_CONFIG_DIR_ . "/config.inc.php");
+require_once(_PS_CONFIG_DIR_ . "/config.inc.php");
+
 class SenderAutomatedEmails extends Module
 {
     /**
@@ -50,11 +51,11 @@ class SenderAutomatedEmails extends Module
     {
         $this->name = 'senderautomatedemails';
         $this->tab = 'emailing';
-        $this->version = '1.0.2';
+        $this->version = '1.0.3';
         $this->author = 'Sender.net';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array(
-            'min' => '1.6.1.0',
+            'min' => '1.6.1.10',
             'max' => _PS_VERSION_
         );
         $this->bootstrap = true;
@@ -309,6 +310,9 @@ class SenderAutomatedEmails extends Module
      */
     public function syncCart($cart, $cookie)
     {
+        // Keep recipient up to date with Sender.net list
+        $this->syncRecipient();
+
         // Generate cart data array for api call
         $cartData = $this->mapCartData($cart, $cookie['email']);
         
@@ -326,6 +330,45 @@ class SenderAutomatedEmails extends Module
             $this->logDebug('Cart delete response:'
                 . Tools::jsonEncode($cartDeleteResult));
         }
+    }
+
+    /**
+     * Syncs recipient with the proper Sender.net list
+     *
+     * @return void
+     */
+    private function syncRecipient()
+    {
+        // Validate if we should
+        if (!Validate::isLoadedObject($this->context->customer)
+            || (!Configuration::get('SPM_ALLOW_TRACK_NEW_SIGNUPS')
+                && !Configuration::get('SPM_ALLOW_GUEST_TRACK'))
+            || !Configuration::get('SPM_IS_MODULE_ACTIVE')) {
+            var_dump('hello');
+            exit;
+        }
+
+        $recipient = array(
+            'email'      => $this->context->customer->email,
+            'firstname'  => $this->context->customer->firstname,
+            'lastname'   => $this->context->customer->lastname,
+            'birthday'   => $this->context->customer->birthday,
+            'created'    => $this->context->customer->date_add,
+            'optin'      => $this->context->customer->optin,
+            'newsletter' => $this->context->customer->newsletter,
+            'gender'     => $this->context->customer->id_gender == 1 ? $this->l('Male') : $this->l('Female')
+        );
+
+        $listToAdd = Configuration::get('SPM_CUSTOMERS_LIST_ID');
+
+        if (!$this->context->customer->is_guest) {
+            $listToAdd = Configuration::get('SPM_CUSTOMERS_LIST_ID');
+        }
+
+        $addTolistResult = $this->apiClient()->addToList(
+            $recipient,
+            $listToAdd
+        );
     }
 
     /**
@@ -441,11 +484,11 @@ class SenderAutomatedEmails extends Module
         $this->logDebug('#hookactionCustomerAccountAdd START');
 
         // Check if user opted in for a newsletter
-        if (!$context['newCustomer']->newsletter
-            && !$context['newCustomer']->optin) {
-            $this->logDebug('Customer did not checked newsletter or optin!');
-            return $context;
-        }
+        // if (!$context['newCustomer']->newsletter
+        //     && !$context['newCustomer']->optin) {
+        //     $this->logDebug('Customer did not checked newsletter or optin!');
+        //     return $context;
+        // }
 
         // Filter out which fields to be taken
         $recipient = array(
