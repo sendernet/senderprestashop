@@ -347,8 +347,7 @@ class SenderAutomatedEmails extends Module
             || (!Configuration::get('SPM_ALLOW_TRACK_NEW_SIGNUPS')
                 && !Configuration::get('SPM_ALLOW_GUEST_TRACK'))
             || !Configuration::get('SPM_IS_MODULE_ACTIVE')) {
-            var_dump('hello');
-            exit;
+            return false;
         }
 
         $recipient = array(
