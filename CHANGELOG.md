@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+1.0.4
+============
+* Changed cart convert hook
+
 1.0.3
 ============
 * Added better customer syncing

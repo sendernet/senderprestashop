@@ -51,7 +51,7 @@ class SenderAutomatedEmails extends Module
     {
         $this->name = 'senderautomatedemails';
         $this->tab = 'emailing';
-        $this->version = '1.0.3';
+        $this->version = '1.0.4';
         $this->author = 'Sender.net';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array(
@@ -114,11 +114,11 @@ class SenderAutomatedEmails extends Module
         }
 
         if (!$this->registerHook('displayBackOfficeHeader')
+            || !$this->registerHook('displayOrderConfirmation')
             || !$this->registerHook('actionCartSummary')
             || !$this->registerHook('actionCartSave')
             || !$this->registerHook('displayHeader')
             || !$this->registerHook('displayHome')
-            || !$this->registerHook('actionValidateOrder')
             || !$this->registerHook('actionCustomerAccountAdd')
             || !$this->registerHook('displayFooterProduct')) {
             return false;
@@ -437,31 +437,30 @@ class SenderAutomatedEmails extends Module
     }
 
     /**
-     * Hook into order validation. Mark cart as converted since order is made.
+     * Hook into order confirmation. Mark cart as converted since order is made.
      * Keep in mind that it doesn't mean that payment has been made
      *
-     * @todo Maybe add option to select which hook to use for conversion
-     *       i.e. Mark as converted only when payment has been confirmed
      *
      * @param  object $context
      * @return object $context
      */
-    public function hookActionValidateOrder($context)
+    public function hookDisplayOrderConfirmation($context)
     {
         // Return if cart object is not found or module is not active
         if (!Configuration::get('SPM_IS_MODULE_ACTIVE')
-            || !Validate::isLoadedObject($context['cart'])
-            || !isset($context['cart']->id)) {
+            || !Validate::isLoadedObject($context['objOrder'])
+            || !isset($context['objOrder']->id_cart)) {
             return $context;
         }
 
         $this->logDebug('#hookActionValidateOrder START');
 
         // Convert cart
-        $converStatus = $this->apiClient()->cartConvert($context['cart']->id);
+        $converStatus = $this->apiClient()->cartConvert($context['objOrder']->id_cart);
 
         $this->logDebug('Cart convert response: '
                 . Tools::jsonEncode($converStatus));
+
         return $context;
     }
 
