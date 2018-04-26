@@ -51,7 +51,7 @@ class SenderAutomatedEmails extends Module
     {
         $this->name = 'senderautomatedemails';
         $this->tab = 'emailing';
-        $this->version = '1.0.4';
+        $this->version = '1.0.5';
         $this->author = 'Sender.net';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array(
@@ -450,7 +450,7 @@ class SenderAutomatedEmails extends Module
         if (!Configuration::get('SPM_IS_MODULE_ACTIVE')
             || !Validate::isLoadedObject($context['objOrder'])
             || !isset($context['objOrder']->id_cart)) {
-            return $context;
+            return;
         }
 
         $this->logDebug('#hookActionValidateOrder START');
@@ -461,7 +461,7 @@ class SenderAutomatedEmails extends Module
         $this->logDebug('Cart convert response: '
                 . Tools::jsonEncode($converStatus));
 
-        return $context;
+        return;
     }
 
     /**

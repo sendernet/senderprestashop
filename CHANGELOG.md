@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+1.0.5
+============
+* Fixed array to string conversion bug in hookDisplayOrderConfirmation
+
 1.0.4
 ============
 * Changed cart convert hook
