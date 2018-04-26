@@ -460,8 +460,6 @@ class SenderAutomatedEmails extends Module
 
         $this->logDebug('Cart convert response: '
                 . Tools::jsonEncode($converStatus));
-
-        return;
     }
 
     /**
