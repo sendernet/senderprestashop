@@ -549,18 +549,21 @@ class SenderAutomatedEmails extends Module
             $image_url = _PS_BASE_URL_._THEME_PROD_DIR_.$image->getExistingImgPath().".jpg";
         }
 
+        $discount_percent = ($params['product']->specificPrice['reduction_type'] == 'percentage')?'-'.(($params['product']->specificPrice['reduction'])*100|round(0)).'%':null;
+
         $options = array(
-                    'name'          => $params['product']->name,
-                    "image"         => $image_url,
-                    "description"   =>  str_replace(
+                    'name'            => $params['product']->name,
+                    "image"           => $image_url,
+                    "description"     =>  str_replace(
                         PHP_EOL,
                         '',
                         strip_tags($params['product']->description)
                     ),
-                    "price"         => $params['product']->getPublicPrice(),
-                    "special_price" => $params['product']->getPublicPrice(),
-                    "currency"      => $this->context->currency->iso_code,
-                    "quantity"      => $params['product']->quantity
+                    "price"           => $params['product']->getPublicPrice(),
+                    "special_price"   => $params['product']->getPublicPrice(),
+                    "currency"        => $this->context->currency->iso_code,
+                    "quantity"        => $params['product']->quantity,
+                    "discount_percent"=> $discount_percent
                 );
 
         $this->context->smarty->assign('product', $options);
