@@ -55,7 +55,7 @@ class SenderAutomatedEmails extends Module
         $this->author = 'Sender.net';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array(
-            'min' => '1.6.1.10',
+            'min' => '1.6.0.0',
             'max' => _PS_VERSION_
         );
         $this->bootstrap = true;
@@ -549,7 +549,14 @@ class SenderAutomatedEmails extends Module
             $image_url = _PS_BASE_URL_._THEME_PROD_DIR_.$image->getExistingImgPath().".jpg";
         }
 
-        $discount_percent = ($params['product']->specificPrice['reduction_type'] == 'percentage')?'-'.(($params['product']->specificPrice['reduction'])*100|round(0)).'%':null;
+        if($params['product']->specificPrice['reduction_type'] == 'percentage'){
+            $discount = '-'.(($params['product']->specificPrice['reduction'])*100|round(0)).'%';
+        }elseif ($params['product']->specificPrice['reduction_type'] == 'amount'){
+            $discount = '-'.(($params['product']->specificPrice['reduction'])*100|round(0))."&euro";
+        }else{
+            $discount = null;
+        }
+
 
         $options = array(
                     'name'            => $params['product']->name,
@@ -563,7 +570,7 @@ class SenderAutomatedEmails extends Module
                     "special_price"   => $params['product']->getPublicPrice(),
                     "currency"        => $this->context->currency->iso_code,
                     "quantity"        => $params['product']->quantity,
-                    "discount_percent"=> $discount_percent
+                    "discount"=> $discount
                 );
 
         $this->context->smarty->assign('product', $options);
