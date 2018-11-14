@@ -645,13 +645,14 @@ class SenderAutomatedEmails extends Module
         $new_tab = new Tab();
         $new_tab->class_name = "AdminSenderAutomatedEmails";
         $new_tab->module = "senderautomatedemails";
-        $new_tab->icon = "senderautomatedemails";
+        if (version_compare(_PS_VERSION_, '1.7', '>=')){
+            $new_tab->icon = "mail";
+        }
         $new_tab->id_parent = Tab::getIdFromClassName('CONFIGURE');
         $new_tab->active = 1;
         foreach ($langs as $l) {
             $new_tab->name[$l['id_lang']] = $this->l('Sender.net Settings');
         }
-
         $new_tab->save();
         return true;
     }
