@@ -384,7 +384,11 @@ class SenderAutomatedEmails extends Module
      */
     public function hookActionCartSummary($context)
     {
-        $cookie = $context['cookie']->getAll();
+        if (version_compare(_PS_VERSION_, '1.6.1.10', '>=')){
+            $cookie = $context['cookie']->getAll();
+        }else {
+            $cookie = $context['cookie']->getFamily($context['cookie']->id);
+        }
        
         // Validate if we should track
         if (!isset($cookie['email'])
@@ -415,7 +419,11 @@ class SenderAutomatedEmails extends Module
      */
     public function hookActionCartSave($context)
     {
-        $cookie = $context['cookie']->getAll();
+        if (version_compare(_PS_VERSION_, '1.6.1.10', '>=')){
+            $cookie = $context['cookie']->getAll();
+        }else {
+            $cookie = $context['cookie']->getFamily($context['cookie']->id);
+        }
 
         // Validate if we should track
         if (!isset($cookie['email'])
@@ -552,7 +560,7 @@ class SenderAutomatedEmails extends Module
         if($params['product']->specificPrice['reduction_type'] == 'percentage'){
             $discount = '-'.(($params['product']->specificPrice['reduction'])*100|round(0)).'%';
         }elseif ($params['product']->specificPrice['reduction_type'] == 'amount'){
-            $discount = '-'.(($params['product']->specificPrice['reduction'])*100|round(0))."&euro";
+            $discount = '-'.(($params['product']->specificPrice['reduction'])*100|round(0)).$this->context->currency->iso_code;
         }else{
             $discount = null;
         }
@@ -633,17 +641,18 @@ class SenderAutomatedEmails extends Module
     private function addTabs()
     {
         $langs = Language::getLanguages();
-        
 
         $new_tab = new Tab();
         $new_tab->class_name = "AdminSenderAutomatedEmails";
         $new_tab->module = "senderautomatedemails";
-        $new_tab->id_parent = 0;
+        $new_tab->icon = "senderautomatedemails";
+        $new_tab->id_parent = Tab::getIdFromClassName('CONFIGURE');
+        $new_tab->active = 1;
         foreach ($langs as $l) {
             $new_tab->name[$l['id_lang']] = $this->l('Sender.net Settings');
         }
+
         $new_tab->save();
-      
         return true;
     }
 
