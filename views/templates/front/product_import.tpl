@@ -19,7 +19,7 @@
         "special_price" : "{$product['special_price']|escape:'htmlall':'UTF-8'}",
         "currency" : "{$product['currency']|escape:'htmlall':'UTF-8'}",
         "quantity" : "{$product['quantity']|escape:'htmlall':'UTF-8'}",
-        "discount_percent : "{$product['discount_percent']|escape:'htmlall':'UTF-8'}"
+        "discount : "{$product['discount']|escape:'htmlall':'UTF-8'}"
 
 	{rdelim}
 	</script>
