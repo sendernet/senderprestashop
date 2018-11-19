@@ -1,5 +1,3 @@
-
-
 <?php
 /**
  * 2010-2018 Sender.net
@@ -122,6 +120,8 @@ class SenderAutomatedEmails extends Module
             || !$this->registerHook('displayHeader')
             || !$this->registerHook('displayHome')
             || !$this->registerHook('actionCustomerAccountAdd')
+            || !$this->registerHook('actionCustomerAccountUpdate')
+            || !$this->registerHook('actionObjectCustomerUpdateAfter')
             || !$this->registerHook('displayFooterProduct')) {
             return false;
         }
@@ -369,10 +369,12 @@ class SenderAutomatedEmails extends Module
             $listToAdd = Configuration::get('SPM_CUSTOMERS_LIST_ID');
         }
 
-        $this->apiClient()->addToList(
+        $result = $this->apiClient()->addToList(
             $recipient,
             $listToAdd
         );
+
+        return $result;
     }
 
     /**
@@ -492,7 +494,7 @@ class SenderAutomatedEmails extends Module
 
 //         Check if user opted in for a newsletter
         if (!$context['newCustomer']->newsletter
-             && !$context['newCustomer']->optin) {
+            && !$context['newCustomer']->optin) {
             $this->logDebug('Customer did not checked newsletter or optin!');
             return $context;
         }
@@ -515,7 +517,7 @@ class SenderAutomatedEmails extends Module
 
         if ($context['newCustomer']->is_guest) {
             $this->logDebug('Adding to guest list: ' . $listToAdd);
-            $listToAdd = Configuration::get('SPM_GUEST_LIST_ID');
+            $listToAdd = Configuration::get('SPM_CUSTOMERS_LIST_ID');
         } else {
             $this->logDebug('Adding to customers list: ' . $listToAdd);
         }
@@ -534,15 +536,33 @@ class SenderAutomatedEmails extends Module
         $this->logDebug('#hookactionCustomerAccountAdd END');
     }
 
-
     /**
+     * Here we handle customer info where he update his account
+     * and we delete or add him to the prefered list
      *
      * @param  array $context
      * @return array $context
      */
-    public function actionCustomerAccountUpdate($context){
+    public function hookactionObjectCustomerUpdateAfter($context)
+    {
+        return $this->hookactionCustomerAccountUpdate($context);
+    }
+
+
+
+    /**
+     * Here we handle customer info where he update his account
+     * and we delete or add him to the prefered list
+     *
+     * @param  array $context
+     * @return array $context
+     */
+    public function hookactionCustomerAccountUpdate($context){
+
+        $customer = $context['object'];
+
         // Validate if we should
-        if (!Validate::isLoadedObject($context['newCustomer'])
+        if (!Validate::isLoadedObject($customer)
             || (!Configuration::get('SPM_ALLOW_TRACK_NEW_SIGNUPS')
                 && !Configuration::get('SPM_ALLOW_GUEST_TRACK'))
             || !Configuration::get('SPM_IS_MODULE_ACTIVE')) {
@@ -551,25 +571,41 @@ class SenderAutomatedEmails extends Module
 
         $this->logDebug('#hookactionCustomerAccountUpdate START');
 
+        $listId = Configuration::get('SPM_CUSTOMERS_LIST_ID');
+        $recipient = array(
+            'email'        => $customer->email,
+        );
+
         // Check if user opted in for a newsletter
-        if (!$context['newCustomer']->newsletter
-            && !$context['newCustomer']->optin) {
+        if (!$customer->newsletter
+            && !$customer->optin) {
             $this->logDebug('Customer did not checked newsletter or optin!');
 
-            $listDeleteFrom = '?';
 
-            $recipient = array('email'=> $context['newCustomer']->email);
-
+            $deleteFromListResult = $this->apiClient()->listRemove(
+                $recipient,
+                $listId
+            );
 
             $this->logDebug('Delete the recipient ' .
                 Tools::jsonEncode($recipient).
                 ' from the '.
+                Tools::jsonEncode($listId).
+                ' list is '.
                 Tools::jsonEncode($deleteFromListResult).
-                ' list.');
+                '.');
+
+        }else{
+
+            $addToListResult = $this->syncRecipient();
+
+            $this->logDebug('Add this recipient: ' .
+                Tools::jsonEncode($recipient));
+
+            $this->logDebug('Add to list response:' .
+                Tools::jsonEncode($addToListResult));
 
         }
-
-        $this->hookactionCustomerAccountAdd($context);
 
         $this->logDebug('#hookactionCustomerAccountUpdate END');
     }

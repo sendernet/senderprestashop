@@ -27,7 +27,7 @@ class SenderApiClient
             $this->apiKey = $apiKey;
         }
     }
-    
+
     /**
      * Returns current Api key
      *
@@ -47,7 +47,7 @@ class SenderApiClient
     {
         return self::$baseUrl;
     }
-    
+
     /**
      *
      * @param type $key
@@ -58,12 +58,12 @@ class SenderApiClient
         if (!$key) {
             return false;
         }
-        
+
         $this->apiKey = $key;
-        
+
         return true;
     }
-    
+
     /**
      * Try to make api call to check whether
      * the api key is valid
@@ -75,11 +75,11 @@ class SenderApiClient
     {
         // Try
         $response = $this->ping();
-        
+
         if (!isset($response->pong) || !$this->getApiKey()) { // Wrong api key
             return false;
         }
-        
+
         return $response;
     }
 
@@ -97,7 +97,7 @@ class SenderApiClient
             'store_baseurl' => $baseUrl,
             'store_currency' => 'EUR'
         ));
-    
+
         return self::$baseUrl . '/commerce/auth/?' . $query;
     }
 
@@ -107,10 +107,10 @@ class SenderApiClient
             "method" => "ping",
             "params" => array(
                 "api_key" => $this->apiKey,
- 
+
             )
         );
-        
+
         return $this->makeApiRequest($data);
     }
 
@@ -126,13 +126,13 @@ class SenderApiClient
             "method" => "listGetAllLists",
             "params" => array(
                 "api_key" => $this->apiKey,
- 
+
             )
         );
-        
+
         return $this->makeApiRequest($data);
     }
-    
+
     /**
      * Retrieve all forms
      *
@@ -149,7 +149,7 @@ class SenderApiClient
 
         return $this->makeApiRequest($data);
     }
-    
+
     /**
      * Retrieve push project script url
      *
@@ -163,10 +163,10 @@ class SenderApiClient
                 "api_key" => $this->apiKey,
             )
         );
-        
+
         return $this->makeApiRequest($data);
     }
-    
+
     /**
      * Retrieve specific form via ID
      *
@@ -184,7 +184,7 @@ class SenderApiClient
 
         return $this->makeApiRequest($data);
     }
-    
+
     /**
      * Add user or info to mailinglist
      *
@@ -201,10 +201,32 @@ class SenderApiClient
                 "emails" => [(object) $recipient]
             )
         );
-        
+
         return $this->makeApiRequest($data);
     }
-    
+
+    /**
+     * Delete user from mailinglist
+     *
+     * @param object $recipient
+     * @param int $listId
+     * @return array
+     */
+    public function listRemove($recipient, $listId)
+    {
+        $data = array(
+            "method"=> "listRemove",
+            "params" => array(
+                "list_id" => $listId,
+                "emails" => $recipient
+            )
+        );
+
+        return $this->makeApiRequest($data);
+    }
+
+
+
     /**
      * Sends cart data to Sender
      *
@@ -227,12 +249,12 @@ class SenderApiClient
     public function cartGet($cartHash)
     {
         $params = array(
-                      "cart_hash" => $cartHash
-                  );
-        
+            "cart_hash" => $cartHash
+        );
+
         return $this->makeCommerceRequest($params, 'cart_get');
     }
-    
+
     /**
      * Convert cart
      *
@@ -242,12 +264,12 @@ class SenderApiClient
     public function cartConvert($cartId)
     {
         $params = array(
-                      "external_id" => $cartId,
-                  );
-        
+            "external_id" => $cartId,
+        );
+
         return $this->makeCommerceRequest($params, 'cart_convert');
     }
-    
+
     /**
      * Delete cart
      *
@@ -257,9 +279,9 @@ class SenderApiClient
     public function cartDelete($cartId)
     {
         $params = array(
-                      "external_id" => $cartId,
-                  );
-        
+            "external_id" => $cartId,
+        );
+
         return $this->makeCommerceRequest($params, 'cart_delete');
     }
 
