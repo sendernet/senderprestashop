@@ -334,8 +334,8 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
             {* ALLOW GUEST TRACKING PANEL *}
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <i class="zmdi zmdi-shopping-cart"></i> 
-                    {l s='Guest cart tracking is' mod='senderautomatedemails'} 
+                    <i class="zmdi zmdi-shopping-cart"></i>
+                    {l s='Guest cart tracking is' mod='senderautomatedemails'}
                     {if not $allowGuestCartTracking}
                         <span id="swToggleGuestCartTrackingTitle" style="color:red;">
                             {l s='disabled' mod='senderautomatedemails'}
@@ -376,23 +376,6 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                             </a>
                         </p>
                     </blockquote>
-                    <div class="col-xs-12{if not $allowGuestCartTracking} hidden{/if}" id="guests_lists">
-                        <div class="form-group">
-                            <label for="swGuestListSelect">
-                                {l s='Select list' mod='senderautomatedemails'}
-                            </label>
-                            <select id="swGuestListSelect" name="swGuestListSelect" value="{$formId|escape:'htmlall':'UTF-8'}">
-                                <option value="0">
-                                    {l s='Select a list' mod='senderautomatedemails'}
-                                </option>
-                                {foreach $guestsLists as $guestsList}
-                                <option {if $guestsList->id eq $guestListId}selected="selected"{/if} value="{$guestsList->id|escape:'htmlall':'UTF-8'}">
-                                    {$guestsList->title|escape:'htmlall':'UTF-8'}
-                                </option>
-                                {/foreach}
-                            </select>
-                        </div>
-                    </div>
                     {/if}
                 </div>
             </div>
