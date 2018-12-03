@@ -279,17 +279,68 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                     </div>
                     <blockquote>
                         <p>
-                            {l s='If this feature is enabled - logged in customers cart will be tracked.' mod='senderautomatedemails'}
+                            {l s='If this feature is enabled - customers carts will be tracked in selected list.
+                            You can manage your lists below.' mod='senderautomatedemails'}
+                        </p>
+                        <p>
+                            <a href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists">
+                                {l s='Manage lists' mod='senderautomatedemails'}
+                            </a>
                         </p>
                     </blockquote>
                 </div>
             </div>
 
+            {* ALLOW GUEST TRACKING PANEL *}
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="zmdi zmdi-shopping-cart"></i>
+                    {l s='Guest cart tracking is' mod='senderautomatedemails'}
+                    {if not $allowGuestCartTracking}
+                        <span id="swToggleGuestCartTrackingTitle" style="color:red;">
+                            {l s='disabled' mod='senderautomatedemails'}
+                        </span>
+                    {else}
+                        <span id="swToggleGuestCartTrackingTitle" style="color:green;">
+                            {l s='enabled' mod='senderautomatedemails'}
+                        </span>
+                    {/if}
+                </div>
+                <div class="panel-body">
+                    {if empty($guestsLists)}
+                        <div class="alert alert-warning">
+                            {l s='To track guest user carts you must have at least one list at your Sender.net`s account' mod='senderautomatedemails'}
+                        </div>
+                        <p>
+                            <a class="btn btn-lg btn-info" href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists/add">
+                                {l s='Create a new list' mod='senderautomatedemails'}
+                            </a>
+                        </p>
+                    {else}
+                        <div class="spm-details-settings">
+                            <button id="swToggleGuestCartTracking" class="btn btn-lg {if not $allowGuestCartTracking}btn-success{else}btn-danger{/if}">
+                                {if not $allowGuestCartTracking}
+                                    {l s='Enable' mod='senderautomatedemails'}
+                                {else}
+                                    {l s='Disable' mod='senderautomatedemails'}
+                                {/if}
+                            </button>
+                        </div>
+                        <blockquote>
+                            <p>
+                                {l s='When enabled, will track guest carts and save guest details to the list selected below.' mod='senderautomatedemails'}
+                            </p>
+                        </blockquote>
+                    {/if}
+                </div>
+            </div>
+
+
             {* SELECT CUSTOMERS LIST *}
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <i class="zmdi zmdi-shopping-cart"></i> 
-                    {l s='Customer list' mod='senderautomatedemails'}
+                    {l s='Customer and guest list' mod='senderautomatedemails'}
                 </div>
                 <div class="panel-body">
                     {if empty($customersLists)}
@@ -305,11 +356,6 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                     <blockquote>
                             <p>
                                 {l s='Select to which list save new signups and customers whose carts were tracked' mod='senderautomatedemails'}
-                            </p>
-                            <p>
-                                <a href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists">
-                                    {l s='Manage lists' mod='senderautomatedemails'}
-                                </a>
                             </p>
                         </blockquote>
                         <div id="swCustomerListSelectContainer" class="form-group">
@@ -330,73 +376,6 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                     {/if}
                 </div>
             </div>
-            
-            {* ALLOW GUEST TRACKING PANEL *}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <i class="zmdi zmdi-shopping-cart"></i> 
-                    {l s='Guest cart tracking is' mod='senderautomatedemails'} 
-                    {if not $allowGuestCartTracking}
-                        <span id="swToggleGuestCartTrackingTitle" style="color:red;">
-                            {l s='disabled' mod='senderautomatedemails'}
-                        </span>
-                    {else}
-                        <span id="swToggleGuestCartTrackingTitle" style="color:green;">
-                            {l s='enabled' mod='senderautomatedemails'}
-                        </span>
-                    {/if}
-                </div>
-                <div class="panel-body">
-                    {if empty($guestsLists)}
-                    <div class="alert alert-warning">
-                        {l s='To track guest user carts you must have at least one list at your Sender.net`s account' mod='senderautomatedemails'}
-                    </div>
-                    <p>
-                        <a class="btn btn-lg btn-info" href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists/add">
-                            {l s='Create a new list' mod='senderautomatedemails'}
-                        </a>
-                    </p>
-                    {else}
-                    <div class="spm-details-settings">
-                        <button id="swToggleGuestCartTracking" class="btn btn-lg {if not $allowGuestCartTracking}btn-success{else}btn-danger{/if}">
-                        {if not $allowGuestCartTracking}
-                            {l s='Enable' mod='senderautomatedemails'}
-                        {else}
-                            {l s='Disable' mod='senderautomatedemails'}
-                        {/if}
-                        </button>
-                    </div>
-                    <blockquote>
-                        <p>
-                            {l s='When enabled, will track guest carts and save guest details to the list selected below.' mod='senderautomatedemails'}
-                        </p>
-                        <p>
-                            <a href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists">
-                                {l s='Manage lists' mod='senderautomatedemails'}
-                            </a>
-                        </p>
-                    </blockquote>
-                    <div class="col-xs-12{if not $allowGuestCartTracking} hidden{/if}" id="guests_lists">
-                        <div class="form-group">
-                            <label for="swGuestListSelect">
-                                {l s='Select list' mod='senderautomatedemails'}
-                            </label>
-                            <select id="swGuestListSelect" name="swGuestListSelect" value="{$formId|escape:'htmlall':'UTF-8'}">
-                                <option value="0">
-                                    {l s='Select a list' mod='senderautomatedemails'}
-                                </option>
-                                {foreach $guestsLists as $guestsList}
-                                <option {if $guestsList->id eq $guestListId}selected="selected"{/if} value="{$guestsList->id|escape:'htmlall':'UTF-8'}">
-                                    {$guestsList->title|escape:'htmlall':'UTF-8'}
-                                </option>
-                                {/foreach}
-                            </select>
-                        </div>
-                    </div>
-                    {/if}
-                </div>
-            </div>
-
         </div>
     </div>
 </div>

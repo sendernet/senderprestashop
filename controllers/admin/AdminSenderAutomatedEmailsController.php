@@ -53,6 +53,7 @@ class AdminSenderAutomatedEmailsController extends ModuleAdminController
             // Use proper function
             // If not connect maybe use SENDER_PLUGIN_ENABLED to
             // check if show configuration
+
             return $this->renderConfigurationMenu();
         }
     }
@@ -64,13 +65,17 @@ class AdminSenderAutomatedEmailsController extends ModuleAdminController
      */
     public function renderAuth()
     {
-        $authUrl = SenderApiClient::generateAuthUrl(
-            $this->context->shop->getBaseUrl(),
-            $this->context->shop->getBaseUrl()
+        if (version_compare(_PS_VERSION_, '1.7.0.0', '>=')) {
+            $returnUrl = $this->context->link->getAdminLink('AdminSenderAutomatedEmails');
+        } else {
+            $returnUrl = $this->context->shop->getBaseUrl()
                 . basename(_PS_ADMIN_DIR_)
                 . DIRECTORY_SEPARATOR
-                . $this->context->link->getAdminLink('AdminSenderAutomatedEmails')
-        );
+                . $this->context->link->getAdminLink('AdminSenderAutomatedEmails');
+        }
+
+        $authUrl = SenderApiClient::generateAuthUrl($this->context->shop->getBaseUrl(), $returnUrl);
+
 
         $options = array(
             'authUrl'       => $authUrl,
@@ -92,11 +97,15 @@ class AdminSenderAutomatedEmailsController extends ModuleAdminController
     public function renderConfigurationMenu()
     {
 
-        $disconnectUrl = $this->context->shop->getBaseUrl()
-            . basename(_PS_ADMIN_DIR_)
-            . DIRECTORY_SEPARATOR
-            . $this->context->link->getAdminLink('AdminSenderAutomatedEmails')
-            . '&disconnect=true';
+        if (version_compare(_PS_VERSION_, '1.7.0.0', '>=')) {
+            $disconnectUrl = $this->context->link->getAdminLink('AdminSenderAutomatedEmails').'&disconnect=true';
+        } else {
+            $disconnectUrl = $this->context->shop->getBaseUrl()
+                . basename(_PS_ADMIN_DIR_)
+                . DIRECTORY_SEPARATOR
+                . $this->context->link->getAdminLink('AdminSenderAutomatedEmails')
+                . '&disconnect=true';
+        }
 
         $output = '';
 
@@ -202,11 +211,14 @@ class AdminSenderAutomatedEmailsController extends ModuleAdminController
      */
     private function redirectToAdminMenu()
     {
-        Tools::redirect(
-            $this->context->shop->getBaseUrl()
+        if (version_compare(_PS_VERSION_, '1.7.0.0', '>=')) {
+            $url = $this->context->link->getAdminLink('AdminSenderAutomatedEmails');
+        } else {
+            $url = $this->context->shop->getBaseUrl()
                 . basename(_PS_ADMIN_DIR_)
                 . DIRECTORY_SEPARATOR
-                . $this->context->link->getAdminLink('AdminSenderAutomatedEmails')
-        );
+                . $this->context->link->getAdminLink('AdminSenderAutomatedEmails');
+        }
+        Tools::redirect($url);
     }
 }

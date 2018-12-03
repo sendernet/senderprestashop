@@ -2,7 +2,7 @@
 /* -- Additional sender styles -------------- */
 
 #content.bootstrap {
-    padding: 10px 10px 0 !important;
+    padding-top: 10px !important;
 }
 
 .lc-block,

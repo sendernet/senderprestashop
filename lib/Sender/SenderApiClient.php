@@ -27,7 +27,7 @@ class SenderApiClient
             $this->apiKey = $apiKey;
         }
     }
-    
+
     /**
      * Returns current Api key
      *
@@ -47,7 +47,7 @@ class SenderApiClient
     {
         return self::$baseUrl;
     }
-    
+
     /**
      *
      * @param type $key
@@ -58,12 +58,12 @@ class SenderApiClient
         if (!$key) {
             return false;
         }
-        
+
         $this->apiKey = $key;
-        
+
         return true;
     }
-    
+
     /**
      * Try to make api call to check whether
      * the api key is valid
@@ -75,11 +75,10 @@ class SenderApiClient
     {
         // Try
         $response = $this->ping();
-        
+
         if (!isset($response->pong) || !$this->getApiKey()) { // Wrong api key
             return false;
         }
-        
         return $response;
     }
 
@@ -97,7 +96,7 @@ class SenderApiClient
             'store_baseurl' => $baseUrl,
             'store_currency' => 'EUR'
         ));
-    
+
         return self::$baseUrl . '/commerce/auth/?' . $query;
     }
 
@@ -107,10 +106,9 @@ class SenderApiClient
             "method" => "ping",
             "params" => array(
                 "api_key" => $this->apiKey,
- 
+
             )
         );
-        
         return $this->makeApiRequest($data);
     }
 
@@ -126,13 +124,13 @@ class SenderApiClient
             "method" => "listGetAllLists",
             "params" => array(
                 "api_key" => $this->apiKey,
- 
+
             )
         );
-        
+
         return $this->makeApiRequest($data);
     }
-    
+
     /**
      * Retrieve all forms
      *
@@ -149,7 +147,7 @@ class SenderApiClient
 
         return $this->makeApiRequest($data);
     }
-    
+
     /**
      * Retrieve push project script url
      *
@@ -163,10 +161,10 @@ class SenderApiClient
                 "api_key" => $this->apiKey,
             )
         );
-        
+
         return $this->makeApiRequest($data);
     }
-    
+
     /**
      * Retrieve specific form via ID
      *
@@ -184,7 +182,7 @@ class SenderApiClient
 
         return $this->makeApiRequest($data);
     }
-    
+
     /**
      * Add user or info to mailinglist
      *
@@ -201,10 +199,32 @@ class SenderApiClient
                 "emails" => [(object) $recipient]
             )
         );
-        
+
         return $this->makeApiRequest($data);
     }
-    
+
+    /**
+     * Delete user from mailinglist
+     *
+     * @param object $recipient
+     * @param int $listId
+     * @return array
+     */
+    public function listRemove($recipient, $listId)
+    {
+        $data = array(
+            "method"=> "listRemove",
+            "params" => array(
+                "list_id" => $listId,
+                "emails" => $recipient
+            )
+        );
+
+        return $this->makeApiRequest($data);
+    }
+
+
+
     /**
      * Sends cart data to Sender
      *
@@ -227,12 +247,12 @@ class SenderApiClient
     public function cartGet($cartHash)
     {
         $params = array(
-                      "cart_hash" => $cartHash
-                  );
-        
+            "cart_hash" => $cartHash
+        );
+
         return $this->makeCommerceRequest($params, 'cart_get');
     }
-    
+
     /**
      * Convert cart
      *
@@ -242,12 +262,12 @@ class SenderApiClient
     public function cartConvert($cartId)
     {
         $params = array(
-                      "external_id" => $cartId,
-                  );
-        
+            "external_id" => $cartId,
+        );
+
         return $this->makeCommerceRequest($params, 'cart_convert');
     }
-    
+
     /**
      * Delete cart
      *
@@ -257,58 +277,77 @@ class SenderApiClient
     public function cartDelete($cartId)
     {
         $params = array(
-                      "external_id" => $cartId,
-                  );
-        
+            "external_id" => $cartId,
+        );
+
         return $this->makeCommerceRequest($params, 'cart_delete');
     }
 
+ 
     /**
-     * Handle requests to commerce endpoint
-     *
-     * @param type $params
-     * @param type $method
-     * @return type
+     * Setup commerce request
+     * @param array $params
+     * @param string $method
+     * @return array
      */
     private function makeCommerceRequest($params, $method)
     {
-
-        $params['api_key'] = $this->apiKey;
-
-        $options = array(
-            'http' => array(
-                'method'  => 'POST',
-                'header' => 'Content-Type: application/x-www-form-urlencoded',
-                'content' => http_build_query($params)
-            )
-        );
-        $context = stream_context_create($options);
-        $result = file_get_contents($this->commerceEndpoint . '/' . $method, false, $context);
-        $response = json_decode($result);
-        return $response;
+       $params['api_key'] = $this->getApiKey();
+        if (function_exists('curl_version')) {
+            return $this->makeCurlRequest(http_build_query(array('data' => $params)), $this->commerceEndpoint . '/' . $method);
+        }
+        return $this->makeHttpRequest($params, $this->commerceEndpoint . '/' . $method);
     }
 
     /**
-     * Handle requests to API endpoint
-     *
-     * @param type $params
-     * @return type
+     * Setup api request
+     * @param array $params
+     * @return array
      */
-    private function makeApiRequest($data)
+    private function makeApiRequest($params)
     {
+        if (function_exists('curl_version')) {
+            return $this->makeCurlRequest(http_build_query(array('data' => json_encode($params))), $this->apiEndpoint);
+        }
+        return $this->makeHttpRequest($params, $this->apiEndpoint);
+    }
 
-        $data['params']['api_key'] = $this->apiKey;
-
+    /**
+     * Make HTTP request through file_get_contents
+     * @param $data
+     * @param $endpoint
+     * @return array|mixed|object
+     */
+    private function makeHttpRequest($data, $endpoint)
+    {
         $options = array(
             'http' => array(
-                'method'  => 'POST',
+                'method' => 'POST',
                 'header' => 'Content-Type: application/x-www-form-urlencoded',
-                'content' => http_build_query(array('data' => json_encode($data)))
+                'content' => http_build_query(array('data' => $data))
             )
         );
         $context = stream_context_create($options);
-        $result = file_get_contents($this->apiEndpoint, false, $context);
-        $response = json_decode($result);
-        return $response;
+        $result = file_get_contents($endpoint, false, $context);
+        return json_decode($result);
     }
+
+    /**
+     * Make api request through CURL
+     * @param array|string $data payload
+     * @param string $endpoint
+     * @return array Server response
+     */
+    private function makeCurlRequest($data, $endpoint)
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $endpoint);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $server_output = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($server_output);
+    }
+    
 }

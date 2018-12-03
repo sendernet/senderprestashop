@@ -8,18 +8,19 @@
  * @license https://opensource.org/licenses/osl-3.0.php Open Software License v. 3.0 (OSL-3.0)
  * Sender.net
  *}
+
 {if $showForm and $formUrl}
-<div>
-    <div class="col-xs-4" id="senderFormContainer">
-        <script type="text/javascript">
-            jQuery(document).ready(function() { 
-                jQuery('#sender-sub-main').detach();
-                jQuery('#senderFormContainer').append(jQuery('.sender-sub-main'));
-            });
-        </script>
-        <script type="text/javascript" src="{$formUrl|escape:'htmlall':'UTF-8'}"></script>
+    <div>
+        <div class="col-xs-4" id="senderFormContainer">
+            <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js">
+                jQuery('document').ready(function() {
+                    jQuery('#sender-sub-main').detach();
+                    jQuery('#senderFormContainer').append(jQuery('.sender-sub-main'));
+                });
+            </script>
+            <script type="text/javascript" src="{$formUrl|escape:'htmlall':'UTF-8'}"></script>
+        </div>
     </div>
-</div>
 {/if}
 
 {if $showPushProject and $pushProject}

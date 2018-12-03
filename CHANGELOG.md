@@ -1,5 +1,11 @@
 # CHANGE LOG
 
+1.0.6
+============
+* Added support for Prestashop version 1.6.0.5 to 1.7.4.4
+* Added discount in sender json for product import
+* Bug fixes
+
 1.0.5
 ============
 * Fixed array to string conversion bug in hookDisplayOrderConfirmation

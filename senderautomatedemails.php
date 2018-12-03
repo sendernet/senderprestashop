@@ -51,11 +51,11 @@ class SenderAutomatedEmails extends Module
     {
         $this->name = 'senderautomatedemails';
         $this->tab = 'emailing';
-        $this->version = '1.0.5';
+        $this->version = '1.0.6';
         $this->author = 'Sender.net';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array(
-            'min' => '1.6.1.10',
+            'min' => '1.6.0.5',
             'max' => _PS_VERSION_
         );
         $this->bootstrap = true;
@@ -67,31 +67,28 @@ class SenderAutomatedEmails extends Module
 
         $this->apiClient = new SenderApiClient(Configuration::get('SPM_API_KEY'));
 
-        if (!$this->apiClient->checkApiKey()) {
-            $this->warning = $this->l('Module is not connected. Click to authenticate.');
-        }
-        
+
         parent::__construct();
 
         $this->displayName = $this->l('Sender.net Automated Emails');
         $this->description = $this->l('All you need for your email marketing in one tool.');
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
-        
+
         $this->defaultSettings = array(
-            'SPM_API_KEY'                   => '',
-            'SPM_IS_MODULE_ACTIVE'          => 1,
-            'SPM_ALLOW_FORMS'               => 1,
-            'SPM_ALLOW_IMPORT'              => 1,
-            'SPM_ALLOW_PUSH'                => 1,
-            'SPM_ALLOW_TRACK_NEW_SIGNUPS'   => 1, # Always enabled, use customers tracking instead
-            'SPM_ALLOW_TRACK_CARTS'         => 1, # <- Allow customers track
-            'SPM_CUSTOMERS_LIST_ID'         => 0,
-            'SPM_GUEST_LIST_ID'             => 0,
-            'SPM_FORM_ID'                   => 0,
-            'SPM_ALLOW_GUEST_TRACK'         => 1,
+            'SPM_API_KEY' => '',
+            'SPM_IS_MODULE_ACTIVE' => 1,
+            'SPM_ALLOW_FORMS' => 1,
+            'SPM_ALLOW_IMPORT' => 1,
+            'SPM_ALLOW_PUSH' => 1,
+            'SPM_ALLOW_TRACK_NEW_SIGNUPS' => 1, # Always enabled, use customers tracking instead
+            'SPM_ALLOW_TRACK_CARTS' => 1, # <- Allow customers track
+            'SPM_CUSTOMERS_LIST_ID' => 0,
+            'SPM_GUEST_LIST_ID' => 0,
+            'SPM_FORM_ID' => 0,
+            'SPM_ALLOW_GUEST_TRACK' => 1,
         );
     }
-    
+
     /**
      * Handle module installation
      *
@@ -120,10 +117,12 @@ class SenderAutomatedEmails extends Module
             || !$this->registerHook('displayHeader')
             || !$this->registerHook('displayHome')
             || !$this->registerHook('actionCustomerAccountAdd')
+            || !$this->registerHook('actionCustomerAccountUpdate')
+            || !$this->registerHook('actionObjectCustomerUpdateAfter')
             || !$this->registerHook('displayFooterProduct')) {
             return false;
         }
-        
+
         return true;
     }
 
@@ -170,29 +169,29 @@ class SenderAutomatedEmails extends Module
 
         $this->logDebug('Syncing old newsletter subscribers');
         $this->logDebug('Selected list: ' . $listId);
-        
+
         if (empty($oldSubscribers)) {
             return $error;
         }
 
         foreach ($oldSubscribers as $subscriber) {
             $this->apiClient()->addToList(array(
-                'email'   => $subscriber['email'],
+                'email' => $subscriber['email'],
                 'created' => $subscriber['newsletter_date_add'],
-                'active'  => $subscriber['active'],
-                'source'  => $this->l('Newsletter')
+                'active' => $subscriber['active'],
+                'source' => $this->l('Newsletter')
             ), $listId);
             $this->logDebug('Added newsletter subscriber: ' . $subscriber['email']);
         }
 
         foreach ($oldCustomers as $subscriber) {
             $this->apiClient()->addToList(array(
-                'email'     => $subscriber['email'],
+                'email' => $subscriber['email'],
                 'firstname' => $subscriber['firstname'],
-                'lastname'  => $subscriber['lastname'],
-                'created'   => $subscriber['date_add'],
-                'active'    => 1,
-                'source'    => $this->l('Customer')
+                'lastname' => $subscriber['lastname'],
+                'created' => $subscriber['date_add'],
+                'active' => 1,
+                'source' => $this->l('Customer')
             ), $listId);
             $this->logDebug('Added newsletter subscriber: ' . $subscriber['email']);
         }
@@ -200,7 +199,7 @@ class SenderAutomatedEmails extends Module
         $this->logDebug('Sync finished.');
         return $this->l('Successfully synced!');
     }
-    
+
     /**
      * Handle uninstall
      *
@@ -235,7 +234,7 @@ class SenderAutomatedEmails extends Module
      */
     public function hookDisplayBackOfficeHeader()
     {
-        $this->context->controller->addCss($this->_path.'views/css/tab.css');
+        $this->context->controller->addCss($this->_path . 'views/css/tab.css');
     }
 
     /**
@@ -265,33 +264,32 @@ class SenderAutomatedEmails extends Module
     private function mapCartData($cart, $email)
     {
         $imageType = ImageType::getFormatedName('home');
-        
-        $data = array(
-            "email"       => $email,
-            "external_id" => $cart->id,
-            "url"         => _PS_BASE_URL_.__PS_BASE_URI__
-                            . 'index.php?fc=module&module='
-                            . $this->name
-                            . '&controller=recover&hash={$cart_hash}',
-            "currency"    => $this->context->currency->iso_code,
-            "grand_total" => $cart->getOrderTotal(),
-            "products"    => array()
-        );
 
+        $data = array(
+            "email" => $email,
+            "external_id" => $cart->id,
+            "url" => _PS_BASE_URL_ . __PS_BASE_URI__
+                . 'index.php?fc=module&module='
+                . $this->name
+                . '&controller=recover&hash={$cart_hash}',
+            "currency" => $this->context->currency->iso_code,
+            "grand_total" => $cart->getOrderTotal(),
+            "products" => array()
+        );
         $products = $cart->getProducts();
 
         foreach ($products as $product) {
             $Product = new Product($product['id_product']);
 
             $price = $Product->getPrice(true, null, 2);
-            
+
             $prod = array(
-                'sku'           => $product['reference'],
-                'name'          => $product['name'],
-                'price'         => $price,
+                'sku' => $product['reference'],
+                'name' => $product['name'],
+                'price' => $price,
                 'price_display' => $price . ' ' . $this->context->currency->iso_code,
-                'qty'           => $product['cart_quantity'],
-                'image'         => $this->context->link->getImageLink(
+                'qty' => $product['cart_quantity'],
+                'image' => $this->context->link->getImageLink(
                     $product['link_rewrite'],
                     $Product->getCoverWs(),
                     $imageType
@@ -307,29 +305,30 @@ class SenderAutomatedEmails extends Module
     /**
      * Sync current cart with sender cart track
      *
-     * @param  object $cart   prestashop Cart
+     * @param  object $cart prestashop Cart
      * @param  array $cookie
      * @return void
      */
     public function syncCart($cart, $cookie)
     {
+
         // Keep recipient up to date with Sender.net list
         $this->syncRecipient();
 
         // Generate cart data array for api call
         $cartData = $this->mapCartData($cart, $cookie['email']);
-        
+
         if (!empty($cartData['products'])) {
             $cartTrackResult = $this->apiClient()->cartTrack($cartData);
 
             $this->logDebug('Cart track request:' .
-                        Tools::jsonEncode($cartData));
+                Tools::jsonEncode($cartData));
 
             $this->logDebug('Cart track response: ' .
-                        Tools::jsonEncode($cartTrackResult));
+                Tools::jsonEncode($cartTrackResult));
         } elseif (empty($cartData['products']) && isset($cookie['id_cart'])) {
             $cartDeleteResult = $this->apiClient()->cartDelete($cookie['id_cart']);
-            
+
             $this->logDebug('Cart delete response:'
                 . Tools::jsonEncode($cartDeleteResult));
         }
@@ -351,14 +350,14 @@ class SenderAutomatedEmails extends Module
         }
 
         $recipient = array(
-            'email'      => $this->context->customer->email,
-            'firstname'  => $this->context->customer->firstname,
-            'lastname'   => $this->context->customer->lastname,
-            'birthday'   => $this->context->customer->birthday,
-            'created'    => $this->context->customer->date_add,
-            'optin'      => $this->context->customer->optin,
+            'email' => $this->context->customer->email,
+            'firstname' => $this->context->customer->firstname,
+            'lastname' => $this->context->customer->lastname,
+            'birthday' => $this->context->customer->birthday,
+            'created' => $this->context->customer->date_add,
+            'optin' => $this->context->customer->optin,
             'newsletter' => $this->context->customer->newsletter,
-            'gender'     => $this->context->customer->id_gender == 1 ? $this->l('Male') : $this->l('Female')
+            'gender' => $this->context->customer->id_gender == 1 ? $this->l('Male') : $this->l('Female')
         );
 
         $listToAdd = Configuration::get('SPM_CUSTOMERS_LIST_ID');
@@ -367,10 +366,12 @@ class SenderAutomatedEmails extends Module
             $listToAdd = Configuration::get('SPM_CUSTOMERS_LIST_ID');
         }
 
-        $this->apiClient()->addToList(
+        $result = $this->apiClient()->addToList(
             $recipient,
             $listToAdd
         );
+
+        return $result;
     }
 
     /**
@@ -384,8 +385,13 @@ class SenderAutomatedEmails extends Module
      */
     public function hookActionCartSummary($context)
     {
-        $cookie = $context['cookie']->getAll();
-       
+
+        if (version_compare(_PS_VERSION_, '1.6.1.10', '>=')) {
+            $cookie = $context['cookie']->getAll();
+        } else {
+            $cookie = $context['cookie']->getFamily($context['cookie']->id);
+        }
+
         // Validate if we should track
         if (!isset($cookie['email'])
             || !Validate::isLoadedObject($context['cart'])
@@ -395,11 +401,10 @@ class SenderAutomatedEmails extends Module
                 && isset($cookie['is_guest']) && $cookie['is_guest'])
             || !Configuration::get('SPM_IS_MODULE_ACTIVE')
             || $this->context->controller instanceof OrderController) {
-            return $context;
+            return;
         }
 
         $this->logDebug('#hookActionCartSummary START');
-
         $this->syncCart($context['cart'], $cookie);
 
         $this->logDebug('#hookActionCartSummary END');
@@ -415,8 +420,12 @@ class SenderAutomatedEmails extends Module
      */
     public function hookActionCartSave($context)
     {
-        $cookie = $context['cookie']->getAll();
 
+        if (version_compare(_PS_VERSION_, '1.6.1.10', '>=')) {
+            $cookie = $context['cookie']->getAll();
+        } else {
+            $cookie = $context['cookie']->getFamily($context['cookie']->id);
+        }
         // Validate if we should track
         if (!isset($cookie['email'])
             || !Validate::isLoadedObject($context['cart'])
@@ -426,7 +435,7 @@ class SenderAutomatedEmails extends Module
                 && isset($cookie['is_guest']) && $cookie['is_guest'])
             || !Configuration::get('SPM_IS_MODULE_ACTIVE')
             || $this->context->controller instanceof OrderController) {
-            return $context;
+            return;
         }
 
         $this->logDebug('#hookActionCartSave START');
@@ -446,20 +455,26 @@ class SenderAutomatedEmails extends Module
      */
     public function hookDisplayOrderConfirmation($context)
     {
+        if (version_compare(_PS_VERSION_, '1.6.1.10', '>=')) {
+            $order = $context['order'];
+        } else {
+            $order = $context['objOrder'];
+        }
+
         // Return if cart object is not found or module is not active
         if (!Configuration::get('SPM_IS_MODULE_ACTIVE')
-            || !Validate::isLoadedObject($context['objOrder'])
-            || !isset($context['objOrder']->id_cart)) {
-            return;
+            || !Validate::isLoadedObject($order)
+            || !isset($order->id_cart)) {
+            return $context;
         }
 
         $this->logDebug('#hookActionValidateOrder START');
 
         // Convert cart
-        $converStatus = $this->apiClient()->cartConvert($context['objOrder']->id_cart);
+        $converStatus = $this->apiClient()->cartConvert($order->id_cart);
 
         $this->logDebug('Cart convert response: '
-                . Tools::jsonEncode($converStatus));
+            . Tools::jsonEncode($converStatus));
     }
 
     /**
@@ -472,6 +487,7 @@ class SenderAutomatedEmails extends Module
      */
     public function hookactionCustomerAccountAdd($context)
     {
+
         // Validate if we should
         if (!Validate::isLoadedObject($context['newCustomer'])
             || (!Configuration::get('SPM_ALLOW_TRACK_NEW_SIGNUPS')
@@ -480,32 +496,40 @@ class SenderAutomatedEmails extends Module
             return $context;
         }
 
-        $this->logDebug('#hookactionCustomerAccountAdd START');
+//         Check if user opted in for a newsletter
+        if (!$context['newCustomer']->newsletter
+            && !$context['newCustomer']->optin) {
+            $this->logDebug('Customer did not checked newsletter or optin!');
+            return $context;
+        }
 
-        // Check if user opted in for a newsletter
-        // if (!$context['newCustomer']->newsletter
-        //     && !$context['newCustomer']->optin) {
-        //     $this->logDebug('Customer did not checked newsletter or optin!');
-        //     return $context;
-        // }
+        $this->logDebug('#hookactionCustomerAccountAdd START');
 
         // Filter out which fields to be taken
         $recipient = array(
-            'email'      => $context['newCustomer']->email,
-            'firstname'  => $context['newCustomer']->firstname,
-            'lastname'   => $context['newCustomer']->lastname,
-            'birthday'   => $context['newCustomer']->birthday,
-            'created'    => $context['newCustomer']->date_add,
-            'optin'      => $context['newCustomer']->optin,
+            'email' => $context['newCustomer']->email,
+            'firstname' => $context['newCustomer']->firstname,
+            'lastname' => $context['newCustomer']->lastname,
+            'birthday' => $context['newCustomer']->birthday,
+            'created' => $context['newCustomer']->date_add,
+            'optin' => $context['newCustomer']->optin,
             'newsletter' => $context['newCustomer']->newsletter,
-            'gender'     => $context['newCustomer']->id_gender == 1 ? $this->l('Male') : $this->l('Female')
+            'gender' => $context['newCustomer']->id_gender == 1 ? $this->l('Male') : $this->l('Female')
         );
 
         $listToAdd = Configuration::get('SPM_CUSTOMERS_LIST_ID');
 
+        if (version_compare(_PS_VERSION_, '1.6.1.10', '>=')) {
+            $cookie = $this->context->cookie->getAll();
+        } else {
+            $cookie = $context['cookie']->getFamily($context['cookie']->id);
+        }
+
+
         if ($context['newCustomer']->is_guest) {
             $this->logDebug('Adding to guest list: ' . $listToAdd);
-            $listToAdd = Configuration::get('SPM_GUEST_LIST_ID');
+            $listToAdd = Configuration::get('SPM_CUSTOMERS_LIST_ID');
+            $this->syncCart($context['cart'], $cookie);
         } else {
             $this->logDebug('Adding to customers list: ' . $listToAdd);
         }
@@ -514,6 +538,7 @@ class SenderAutomatedEmails extends Module
             $recipient,
             $listToAdd
         );
+        $this->syncCart($context['cart'], $cookie);
 
         $this->logDebug('Add this recipient: ' .
             Tools::jsonEncode($recipient));
@@ -525,6 +550,75 @@ class SenderAutomatedEmails extends Module
     }
 
     /**
+     * Here we handle customer info where he update his account
+     * and we delete or add him to the prefered list
+     *
+     * @param  array $context
+     * @return array $context
+     */
+    public function hookactionObjectCustomerUpdateAfter($context)
+    {
+        return $this->hookactionCustomerAccountUpdate($context);
+    }
+
+    /**
+     * Here we handle customer info where he update his account
+     * and we delete or add him to the prefered list
+     *
+     * @param  array $context
+     * @return array $context
+     */
+    public function hookactionCustomerAccountUpdate($context)
+    {
+
+        $customer = $this->context->customer;
+        //Validate if we should
+        if (!Validate::isLoadedObject($customer)
+            || (!Configuration::get('SPM_ALLOW_TRACK_NEW_SIGNUPS')
+                && !Configuration::get('SPM_ALLOW_GUEST_TRACK'))
+            || !Configuration::get('SPM_IS_MODULE_ACTIVE')) {
+            return $customer;
+        }
+        $this->logDebug('#hookactionCustomerAccountUpdate START');
+
+        $listId = Configuration::get('SPM_CUSTOMERS_LIST_ID');
+        $recipient = array(
+            'email' => $customer->email,
+        );
+
+        // Check if user opted in for a newsletter
+        if (!$customer->newsletter
+            && !$customer->optin) {
+            $this->logDebug('Customer did not checked newsletter or optin!');
+
+
+            $deleteFromListResult = $this->apiClient()->listRemove(
+                $recipient,
+                $listId
+            );
+
+
+            $this->logDebug('Delete the recipient ' .
+                Tools::jsonEncode($recipient) .
+                ' from the ' .
+                Tools::jsonEncode($listId) .
+                ' list is ' .
+                Tools::jsonEncode($deleteFromListResult) .
+                '.');
+        } else {
+            $addToListResult = $this->syncRecipient();
+
+            $this->logDebug('Add this recipient: ' .
+                Tools::jsonEncode($recipient));
+
+            $this->logDebug('Add to list response:' .
+                Tools::jsonEncode($addToListResult));
+        }
+        $this->logDebug('#hookactionCustomerAccountUpdate END');
+    }
+
+
+    /**
      * On this hook we setup product
      * impor JSON for sender to get the data
      *
@@ -533,35 +627,90 @@ class SenderAutomatedEmails extends Module
      */
     public function hookDisplayFooterProduct($params)
     {
-        // Check if we should
-        if (!Validate::isLoadedObject($params['product'])
-            || !Configuration::get('SPM_IS_MODULE_ACTIVE')
-            || !Configuration::get('SPM_ALLOW_IMPORT')) {
-            return;
-        }
 
-        // Get image
-        $images = $params['product']->getWsImages();
+        $product = $params['product'];
         $image_url = '';
-        
-        if (sizeof($images) > 0) {
-            $image = new Image($images[0]['id']);
-            $image_url = _PS_BASE_URL_._THEME_PROD_DIR_.$image->getExistingImgPath().".jpg";
+
+        if ($product instanceof Product /* or ObjectModel */) {
+            $product = (array)$product;
+
+            if (empty($product)
+                || !Configuration::get('SPM_IS_MODULE_ACTIVE')
+                || !Configuration::get('SPM_ALLOW_IMPORT')) {
+                return;
+            }
+
+            // Get image
+            $images = $params['product']->getWsImages();
+
+            if (sizeof($images) > 0) {
+                $image = new Image($images[0]['id']);
+                $image_url = _PS_BASE_URL_ . _THEME_PROD_DIR_ . $image->getExistingImgPath() . ".jpg";
+            }
+
+            //Get price
+            if (!empty($product['specificPrice'])) {
+                //Get discount
+                if ($product['specificPrice']['reduction_type'] == 'percentage') {
+                    $discount = '-' . (($product['specificPrice']['reduction']) * 100 | round(0)) . '%';
+                } elseif ($product['specificPrice']['reduction_type'] == 'amount') {
+                    $discount = '-' . (($product['specificPrice']['reduction']) * 100
+                            | round(0)) . $this->context->currency->iso_code;
+                } else {
+                    $discount = '-0%';
+                }
+                $price = round($params['product']->getPriceWithoutReduct(), 2);
+                $special_price = round($params['product']->getPublicPrice(), 2);
+            } else {
+                $price = round($params['product']->getPublicPrice(), 2);
+                $special_price = round($params['product']->getPublicPrice(), 2);
+                $discount = '-0%';
+            }
+        } else {
+            if (empty($product)
+                || !Configuration::get('SPM_IS_MODULE_ACTIVE')
+                || !Configuration::get('SPM_ALLOW_IMPORT')) {
+                return;
+            }
+
+            // Get image
+            $image_url = $product['images']['0']['small']['url'];
+
+            if ($product['images']['0']['small']['url']) {
+                $image_url = $product['images']['0']['small']['url'];
+            }
+
+            //Get discount
+            if ($product['has_discount']) {
+                if ($product['discount_type'] == 'percentage') {
+                    $discount = $product['discount_percentage'];
+                }
+                if ($product['discount_type'] == 'amount') {
+                    $discount = $product['discount_amount_to_display'];
+                }
+            } else {
+                $discount = '-0%';
+            }
+            //Get price
+            $price = $product['regular_price_amount'];
+            $special_price = $product['price_amount'];
         }
 
         $options = array(
-                    'name'          => $params['product']->name,
-                    "image"         => $image_url,
-                    "description"   =>  str_replace(
-                        PHP_EOL,
-                        '',
-                        strip_tags($params['product']->description)
-                    ),
-                    "price"         => $params['product']->getPublicPrice(),
-                    "special_price" => $params['product']->getPublicPrice(),
-                    "currency"      => $this->context->currency->iso_code,
-                    "quantity"      => $params['product']->quantity
-                );
+            'name' => $product['name'],
+            "image" => $image_url,
+            "description" => str_replace(
+                PHP_EOL,
+                '',
+                strip_tags($product['description'])
+            ),
+            "price" => $price,
+            "special_price" => $special_price,
+            "currency" => $this->context->currency->iso_code,
+            "quantity" => $product['quantity'],
+            "discount" => $discount
+        );
+
 
         $this->context->smarty->assign('product', $options);
 
@@ -577,6 +726,7 @@ class SenderAutomatedEmails extends Module
      */
     public function hookDisplayHome($params)
     {
+
         // Check if we should
         if (!Configuration::get('SPM_IS_MODULE_ACTIVE')
             || (!Configuration::get('SPM_ALLOW_FORMS')
@@ -585,13 +735,13 @@ class SenderAutomatedEmails extends Module
         }
 
         $options = array(
-            'showPushProject'   => false,
-            'showForm'          => false
+            'showPushProject' => false,
+            'showForm' => false
         );
 
         // Add push
         if (Configuration::get('SPM_ALLOW_PUSH')) {
-            $options['pushProject']     = $this->apiClient()->getPushProject();
+            $options['pushProject'] = $this->apiClient()->getPushProject();
             $options['showPushProject'] = true;
         }
 
@@ -600,7 +750,7 @@ class SenderAutomatedEmails extends Module
 
         // Add forms
         if (Configuration::get('SPM_ALLOW_FORMS')) {
-            $options['formUrl']  = isset($form->script_url) ? $form->script_url : '';
+            $options['formUrl'] = isset($form->script_url) ? $form->script_url : '';
             $options['showForm'] = true;
         }
 
@@ -614,6 +764,7 @@ class SenderAutomatedEmails extends Module
      */
     public function getContent()
     {
+
         Tools::redirectAdmin($this->context->link->getAdminLink('AdminSenderAutomatedEmails'));
     }
 
@@ -622,18 +773,21 @@ class SenderAutomatedEmails extends Module
      */
     private function addTabs()
     {
+
         $langs = Language::getLanguages();
-        
 
         $new_tab = new Tab();
         $new_tab->class_name = "AdminSenderAutomatedEmails";
         $new_tab->module = "senderautomatedemails";
-        $new_tab->id_parent = 0;
+        if (version_compare(_PS_VERSION_, '1.7', '>=')) {
+            $new_tab->icon = "mail";
+        }
+        $new_tab->id_parent = Tab::getIdFromClassName('CONFIGURE');
+        $new_tab->active = 1;
         foreach ($langs as $l) {
             $new_tab->name[$l['id_lang']] = $this->l('Sender.net Settings');
         }
         $new_tab->save();
-      
         return true;
     }
 
@@ -648,11 +802,12 @@ class SenderAutomatedEmails extends Module
         if ($this->debug) {
             if (!$this->debugLogger) {
                 $this->debugLogger = new FileLogger(0);
-                $this->debugLogger->setFilename(_PS_ROOT_DIR_.'/log/sender_automated_emails_logs_'.date('Ymd').'.log');
+                $this->debugLogger->
+                setFilename(_PS_ROOT_DIR_ . '/log/sender_automated_emails_logs_' . date('Ymd') . '.log');
             }
             $this->debugLogger->logDebug('
 
-                    ' . $message .' 
+                    ' . $message . ' 
             ');
         }
     }
@@ -671,7 +826,6 @@ class SenderAutomatedEmails extends Module
             $this->apiClient = new SenderApiClient();
             $this->apiClient->setApiKey(Configuration::get('SPM_API_KEY'));
         }
-
         // Check if key is valid
         if (!$this->apiClient->checkApiKey()) {
             $this->logDebug('apiClient(): checkApiKey failed.');
