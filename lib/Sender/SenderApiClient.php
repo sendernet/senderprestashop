@@ -75,8 +75,8 @@ class SenderApiClient
     {
         // Try
         $response = $this->ping();
+        if (!isset($response->api_key) || !$this->getApiKey() || $response->api_key != $this->getApiKey()) { // Wrong api key
 
-        if (!isset($response->pong) || !$this->getApiKey()) { // Wrong api key
             return false;
         }
         return $response;
@@ -195,11 +195,11 @@ class SenderApiClient
         $data = array(
             "method" => "listSubscribe",
             "params" => array(
+                "api_key" => $this->getApiKey(),
                 "list_id" => $listId,
                 "emails" => [(object) $recipient]
             )
         );
-
         return $this->makeApiRequest($data);
     }
 

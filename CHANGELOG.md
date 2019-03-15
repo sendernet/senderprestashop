@@ -1,5 +1,10 @@
 # CHANGE LOG
 
+1.0.7
+============
+* Fixed subscribers sync bug
+* Added support for Prestashop version up to 1.7.5.0 
+
 1.0.6
 ============
 * Added support for Prestashop version 1.6.0.5 to 1.7.4.4
