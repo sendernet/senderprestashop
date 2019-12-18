@@ -13,6 +13,7 @@ var cartsAjaxurl = "{$cartsAjaxurl|escape:'htmlall':'UTF-8'}";
 var formsAjaxurl = "{$formsAjaxurl|escape:'htmlall':'UTF-8'}";
 var listsAjaxurl = "{$listsAjaxurl|escape:'htmlall':'UTF-8'}";
 var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
+var dataAjaxurl = "{$dataAjaxurl|escape:'htmlall':'UTF-8'}";
 </script>
 <div class="sender-prestashop-card">
     <div class="sender-prestashop-header">
@@ -34,7 +35,7 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                     <li class="tab-link spm-current spm-active" data-tab="spm-home">
                         <a href="#!spm-home">
                             <i class="zmdi zmdi-home"></i>
-                            {l s='Home' mod='senderautomatedemails'}
+                            {l s='Home as' mod='senderautomatedemails'}
                         </a>
                     </li>
                     <li class="tab-link" data-tab="spm-forms">
@@ -55,7 +56,7 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                             {l s='Push notifications' mod='senderautomatedemails'}
                         </a>
                     </li>
-                   
+
                 </ul>
             </div>
         </div>
@@ -376,6 +377,31 @@ var pushAjaxurl = "{$pushAjaxurl|escape:'htmlall':'UTF-8'}";
                     {/if}
                 </div>
             </div>
-        </div>
+
     </div>
+
+        {* SELECT CUSTOMERS DATA *}
+        <div id="spm-customer-data" class="spm-tab-content">
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <i class="zmdi zmdi-shopping-cart"></i>
+                        {l s='User data add to list' mod='senderautomatedemails'}
+                    </div>
+                    <div class="panel-body">
+                        <blockquote>
+                            <p>
+                                {l s='Select which customer data add to subsriber list (email is added by default)' mod='senderautomatedemails'}
+                            </p>
+                        </blockquote>
+                            <input class="spm-customer-data-input" type="checkbox" value="FIRSNAME" >{l s='Firstname' mod='senderautomatedemails'}<br>
+                            <input class="spm-customer-data-input" type="checkbox" value="LASTNAME" >{l s='Lastname' mod='senderautomatedemails'}<br>
+                            <input class="spm-customer-data-input" type="checkbox" value="BIRTHDAY" >{l s='Birthday' mod='senderautomatedemails'}<br>
+                            <input class="spm-customer-data-input" type="checkbox" value="CRATED" >{l s='Customer Created date' mod='senderautomatedemails'}<br>
+                            <input class="spm-customer-data-input" type="checkbox" value="NEWSLETTER" >{l s='Subscribed to newsletter' mod='senderautomatedemails'}<br>
+                            <input class="spm-customer-data-input" type="checkbox" value="GENDER" >{l s='Gender' mod='senderautomatedemails'}<br>
+                    </div>
+                </div>
+
+        </div>
 </div>

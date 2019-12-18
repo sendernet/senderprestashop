@@ -51,7 +51,7 @@ class SenderAutomatedEmails extends Module
     {
         $this->name = 'senderautomatedemails';
         $this->tab = 'emailing';
-        $this->version = '1.0.7';
+        $this->version = '1.0.8';
         $this->author = 'Sender.net';
         $this->need_instance = 0;
         $this->ps_versions_compliancy = array(
@@ -86,6 +86,13 @@ class SenderAutomatedEmails extends Module
             'SPM_GUEST_LIST_ID' => 0,
             'SPM_FORM_ID' => 0,
             'SPM_ALLOW_GUEST_TRACK' => 1,
+            'SPM_CUSTOMER_FIRSNAME' => 1,
+            'SPM_CUSTOMER_LASTNAME' => 1,
+            'SPM_CUSTOMER_BIRTHDAY' => 1,
+            'SPM_CUSTOMER_CRATED' => 1,
+            'SPM_CUSTOMER_NEWSLETTER' => 1,
+            'SPM_CUSTOMER_GENDER' => 1,
+
         );
     }
 
@@ -349,16 +356,18 @@ class SenderAutomatedEmails extends Module
             return false;
         }
 
+
+
         $recipient = array(
             'email' => $this->context->customer->email,
-            'firstname' => $this->context->customer->firstname,
-            'lastname' => $this->context->customer->lastname,
-            'birthday' => $this->context->customer->birthday,
-            'created' => $this->context->customer->date_add,
             'optin' => $this->context->customer->optin,
-            'newsletter' => $this->context->customer->newsletter,
-            'gender' => $this->context->customer->id_gender == 1 ? $this->l('Male') : $this->l('Female')
         );
+        (Configuration::get('SPM_CUSTOMER_FIRSNAME')) == 1 ? $recipient['firstname'] = $this->context->customer->firstname : false;
+        (Configuration::get('SPM_CUSTOMER_LASTNAME')) == 1 ? $recipient['lastname'] = $this->context->customer->lastname : false;
+        (Configuration::get('SPM_CUSTOMER_BIRTHDAY')) == 1 ? $recipient['birthday'] = $this->context->customer->birthday : false;
+        (Configuration::get('SPM_CUSTOMER_CRATED')) == 1 ? $recipient['created'] = $this->context->customer->date_add : false;
+        (Configuration::get('SPM_CUSTOMER_NEWSLETTER')) == 1 ? $recipient['newsletter'] = $this->context->customer->newsletter : false;
+        (Configuration::get('SPM_CUSTOMER_GENDER')) == 1 ? $recipient['gender'] = ($this->context->customer->id_gender == 1 ? $this->l('Male') : $this->l('Female')) : false;
 
         $listToAdd = Configuration::get('SPM_CUSTOMERS_LIST_ID');
 
@@ -507,15 +516,15 @@ class SenderAutomatedEmails extends Module
 
         // Filter out which fields to be taken
         $recipient = array(
-            'email' => $context['newCustomer']->email,
-            'firstname' => $context['newCustomer']->firstname,
-            'lastname' => $context['newCustomer']->lastname,
-            'birthday' => $context['newCustomer']->birthday,
-            'created' => $context['newCustomer']->date_add,
-            'optin' => $context['newCustomer']->optin,
-            'newsletter' => $context['newCustomer']->newsletter,
-            'gender' => $context['newCustomer']->id_gender == 1 ? $this->l('Male') : $this->l('Female')
+            'email' => $this->context->customer->email,
+            'optin' => $this->context->customer->optin,
         );
+        (Configuration::get('SPM_CUSTOMER_FIRSNAME')) == 1 ? $recipient['firstname'] = $this->context->customer->firstname : false;
+        (Configuration::get('SPM_CUSTOMER_LASTNAME')) == 1 ? $recipient['lastname'] = $this->context->customer->lastname : false;
+        (Configuration::get('SPM_CUSTOMER_BIRTHDAY')) == 1 ? $recipient['birthday'] = $this->context->customer->birthday : false;
+        (Configuration::get('SPM_CUSTOMER_CRATED')) == 1 ? $recipient['created'] = $this->context->customer->date_add : false;
+        (Configuration::get('SPM_CUSTOMER_NEWSLETTER')) == 1 ? $recipient['newsletter'] = $this->context->customer->newsletter : false;
+        (Configuration::get('SPM_CUSTOMER_GENDER')) == 1 ? $recipient['gender'] = ($this->context->customer->id_gender == 1 ? $this->l('Male') : $this->l('Female')) : false;
 
         $listToAdd = Configuration::get('SPM_CUSTOMERS_LIST_ID');
 
@@ -757,6 +766,7 @@ class SenderAutomatedEmails extends Module
         $this->context->smarty->assign($options);
 
         return $this->context->smarty->fetch($this->views_url . '/templates/front/form.tpl');
+
     }
 
     /**

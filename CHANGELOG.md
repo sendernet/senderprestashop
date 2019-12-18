@@ -1,5 +1,9 @@
 # CHANGE LOG
 
+1.0.8
+============
+* Added ability to select which data add to a list
+
 1.0.7
 ============
 * Fixed subscribers sync bug

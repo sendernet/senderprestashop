@@ -146,6 +146,8 @@ class AdminSenderAutomatedEmailsController extends ModuleAdminController
                                         . Tools::getAdminToken($this->module->name),
             'pushAjaxurl'            => $this->module->module_url . '/ajax/push_ajax.php?token='
                                         . Tools::getAdminToken($this->module->name),
+            'dataAjaxurl'            => $this->module->module_url . '/ajax/data_ajax.php?token='
+                                        . Tools::getAdminToken($this->module->name),
             'formId'                 => Configuration::get('SPM_FORM_ID'),
             'guestListId'            => Configuration::get('SPM_GUEST_LIST_ID'),
             'customerListId'         => Configuration::get('SPM_CUSTOMERS_LIST_ID'),

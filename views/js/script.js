@@ -219,6 +219,28 @@
             });
 
         });
+        jQuery('.spm-customer-data-input').on('change', function(event) {
+            if($(this).is(':checked')) {
+                jQuery.post(dataAjaxurl, { action: 'addData', option_name: $(this).val() }, function(response) {
+                    console.log(response);
+                });
+            }else{
+                jQuery.post(dataAjaxurl, { action: 'removeData', option_name: $(this).val() }, function(response) {
+                    console.log(response);
+                });
+            }
+        });
+
+        jQuery('.spm-customer-data-input').each(function() {
+            let elm = $(this);
+            jQuery.post(dataAjaxurl, { action: 'getIfEnabled', option_name: $(this).val() }, function(response) {
+                if(response == 1){
+                    elm.prop( 'checked', true )
+                }
+
+            });
+
+        });
 
         jQuery('#swCustomerListSelect').on('change', function(event) {
 
