@@ -56,7 +56,12 @@ var dataAjaxurl = "{$dataAjaxurl|escape:'htmlall':'UTF-8'}";
                             {l s='Push notifications' mod='senderautomatedemails'}
                         </a>
                     </li>
-
+                    <li class="tab-link" data-tab="spm-customer-data">
+                        <a href="#!spm-customer-data"">
+                        <i class="zmdi zmdi-accounts-alt"></i>
+                        {l s='Customer Data' mod='senderautomatedemails'}
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
