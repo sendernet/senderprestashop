@@ -371,8 +371,8 @@ class SenderAutomatedEmails extends Module
 
         $listToAdd = Configuration::get('SPM_CUSTOMERS_LIST_ID');
 
-        if (!$this->context->customer->is_guest) {
-            $listToAdd = Configuration::get('SPM_CUSTOMERS_LIST_ID');
+        if ($this->context->customer->is_guest) {
+            $listToAdd = Configuration::get('SPM_GUEST_LIST_ID');
         }
 
         $result = $this->apiClient()->addToList(
@@ -537,7 +537,7 @@ class SenderAutomatedEmails extends Module
 
         if ($context['newCustomer']->is_guest) {
             $this->logDebug('Adding to guest list: ' . $listToAdd);
-            $listToAdd = Configuration::get('SPM_CUSTOMERS_LIST_ID');
+            $listToAdd = Configuration::get('SPM_GUEST_LIST_ID');
             $this->syncCart($context['cart'], $cookie);
         } else {
             $this->logDebug('Adding to customers list: ' . $listToAdd);

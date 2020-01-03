@@ -58,8 +58,8 @@ var dataAjaxurl = "{$dataAjaxurl|escape:'htmlall':'UTF-8'}";
                     </li>
                     <li class="tab-link" data-tab="spm-customer-data">
                         <a href="#!spm-customer-data"">
-                        <i class="zmdi zmdi-accounts-alt"></i>
-                        {l s='Customer Data' mod='senderautomatedemails'}
+                            <i class="zmdi zmdi-accounts-alt"></i>
+                            {l s='Customer Data' mod='senderautomatedemails'}
                         </a>
                     </li>
                 </ul>
@@ -283,17 +283,39 @@ var dataAjaxurl = "{$dataAjaxurl|escape:'htmlall':'UTF-8'}";
                         {/if}
                         </button>
                     </div>
-                    <blockquote>
-                        <p>
-                            {l s='If this feature is enabled - customers carts will be tracked in selected list.
-                            You can manage your lists below.' mod='senderautomatedemails'}
-                        </p>
-                        <p>
-                            <a href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists">
-                                {l s='Manage lists' mod='senderautomatedemails'}
-                            </a>
-                        </p>
-                    </blockquote>
+                    <div class="panel-body">
+                        {if empty($customersLists)}
+                            <div class="alert alert-warning">
+                                {l s='To track customers carts you must have at least one list at your Sender.net`s account' mod='senderautomatedemails'}
+                            </div>
+                            <p>
+                                <a class="btn btn-lg btn-info" href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists/add">
+                                    {l s='Create a new list' mod='senderautomatedemails'}
+                                </a>
+                            </p>
+                        {else}
+                            <blockquote>
+                                <p>
+                                    {l s='Select to which list save new signups and customers whose carts were tracked' mod='senderautomatedemails'}
+                                </p>
+                            </blockquote>
+                            <div id="swCustomerListSelectContainer" class="form-group">
+                                <label for="swCustomerListSelect">
+                                    {l s='Select list' mod='senderautomatedemails'}
+                                </label>
+                                <select id="swCustomerListSelect" value="{$formId|escape:'htmlall':'UTF-8'}">
+                                    <option value="0">
+                                        {l s='Select a list' mod='senderautomatedemails'}
+                                    </option>
+                                    {foreach $customersLists as $customerList}
+                                        <option {if $customerList->id eq $customerListId}selected="selected"{/if} value="{$customerList->id|escape:'htmlall':'UTF-8'}">
+                                            {$customerList->title|escape:'htmlall':'UTF-8'}
+                                        </option>
+                                    {/foreach}
+                                </select>
+                            </div>
+                        {/if}
+                    </div>
                 </div>
             </div>
 
@@ -332,52 +354,38 @@ var dataAjaxurl = "{$dataAjaxurl|escape:'htmlall':'UTF-8'}";
                                 {/if}
                             </button>
                         </div>
-                        <blockquote>
-                            <p>
-                                {l s='When enabled, will track guest carts and save guest details to the list selected below.' mod='senderautomatedemails'}
-                            </p>
-                        </blockquote>
-                    {/if}
-                </div>
-            </div>
-
-
-            {* SELECT CUSTOMERS LIST *}
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <i class="zmdi zmdi-shopping-cart"></i> 
-                    {l s='Customer and guest list' mod='senderautomatedemails'}
-                </div>
-                <div class="panel-body">
-                    {if empty($customersLists)}
-                    <div class="alert alert-warning">
-                        {l s='To track customers carts you must have at least one list at your Sender.net`s account' mod='senderautomatedemails'}
-                    </div>
-                    <p>
-                        <a class="btn btn-lg btn-info" href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists/add">
-                            {l s='Create a new list' mod='senderautomatedemails'}
-                        </a>
-                    </p>
-                    {else}
-                    <blockquote>
-                            <p>
-                                {l s='Select to which list save new signups and customers whose carts were tracked' mod='senderautomatedemails'}
-                            </p>
-                        </blockquote>
-                        <div id="swCustomerListSelectContainer" class="form-group">
-                            <label for="swCustomerListSelect">
-                                {l s='Select list' mod='senderautomatedemails'}
-                            </label>
-                            <select id="swCustomerListSelect" value="{$formId|escape:'htmlall':'UTF-8'}">
-                                <option value="0">
-                                    {l s='Select a list' mod='senderautomatedemails'}
-                                </option>
-                                {foreach $customersLists as $customerList}
-                                <option {if $customerList->id eq $customerListId}selected="selected"{/if} value="{$customerList->id|escape:'htmlall':'UTF-8'}">
-                                    {$customerList->title|escape:'htmlall':'UTF-8'}
-                                </option>
-                                {/foreach}
-                            </select>
+                        <div class="panel-body">
+                            {if empty($guestsLists)}
+                                <div class="alert alert-warning">
+                                    {l s='To track customers carts you must have at least one list at your Sender.net`s account' mod='senderautomatedemails'}
+                                </div>
+                                <p>
+                                    <a class="btn btn-lg btn-info" href="{$baseUrl|escape:'htmlall':'UTF-8'}/mailinglists/add">
+                                        {l s='Create a new list' mod='senderautomatedemails'}
+                                    </a>
+                                </p>
+                            {else}
+                                <blockquote>
+                                    <p>
+                                        {l s='Select to which list save guests whose carts were tracked' mod='senderautomatedemails'}
+                                    </p>
+                                </blockquote>
+                                <div id="swGuestListSelectContainer" class="form-group">
+                                    <label for="swGuestListSelect">
+                                        {l s='Select list' mod='senderautomatedemails'}
+                                    </label>
+                                    <select id="swGuestListSelect" value="{$formId|escape:'htmlall':'UTF-8'}">
+                                        <option value="0">
+                                            {l s='Select a list' mod='senderautomatedemails'}
+                                        </option>
+                                        {foreach $guestsLists as $guestsList}
+                                            <option {if $guestsList->id eq $guestListId}selected="selected"{/if} value="{$guestsList->id|escape:'htmlall':'UTF-8'}">
+                                                {$guestsList->title|escape:'htmlall':'UTF-8'}
+                                            </option>
+                                        {/foreach}
+                                    </select>
+                                </div>
+                            {/if}
                         </div>
                     {/if}
                 </div>
