@@ -12,7 +12,7 @@ class SenderApiClient
 {
 
     public static $version = '1.4';
-    public static $baseUrl = 'https://app.sender.net';
+    public static $baseUrl = 'https://api.sender.net';
     private $apiKey;
     private $apiEndpoint;
     private $commerceEndpoint;
@@ -20,7 +20,7 @@ class SenderApiClient
     public function __construct($apiKey = null)
     {
         $this->apiKey = null;
-        $this->apiEndpoint = self::$baseUrl . '/api';
+        $this->apiEndpoint = self::$baseUrl . '/v1';
         $this->commerceEndpoint = self::$baseUrl . '/commerce/v1';
 
         if ($apiKey) {
